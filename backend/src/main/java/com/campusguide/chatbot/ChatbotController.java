@@ -13,10 +13,8 @@ public class ChatbotController {
     }
 
     @PostMapping
-    public ChatResponse chat(@RequestBody ChatRequest request){
+    public String chat(@RequestBody ChatRequest request){
 
-        String answer = chatbotService.getAnswer(request.getMessage());
-
-        return new ChatResponse(answer);
+        return chatbotService.askChatGPT(request.getMessage());
     }
 }

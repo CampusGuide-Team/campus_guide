@@ -1,20 +1,51 @@
 package com.campusguide.chatbot;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.*;
+
+import java.util.*;
 
 @Service
 public class ChatbotService {
 
-    public String getAnswer(String message) {
+    @Value("${openai.api.key}")
+    private String apiKey;
 
-        if(message.contains("도서관")){
-            return "도서관은 W20에 있습니다!";
-        }
+    public String askChatGPT(String message){
 
-        if(message.contains("학생회관")){
-            return "한국교통대학교 E6에 있습니다";
-        }
+        String url = "https://api.openai.com/v1/chat/completions";
 
-        return "죄송합니다. 이해하지 못했습니다.";
+        RestTemplate restTemplate = new RestTemplate();
+
+        Map<String,Object> body = new HashMap<>();
+        body.put("model","gpt-4o-mini");
+
+        List<Map<String,String>> messages = new ArrayList<>();
+        messages.add(Map.of(
+                "role","user",
+                "content",message
+        ));
+
+        body.put("messages",messages);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(apiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String,Object>> entity =
+                new HttpEntity<>(body,headers);
+
+        ResponseEntity<Map> response =
+                restTemplate.postForEntity(url,entity,Map.class);
+
+        Map result = response.getBody();
+
+        List choices = (List) result.get("choices");
+        Map first = (Map) choices.get(0);
+        Map msg = (Map) first.get("message");
+
+        return msg.get("content").toString();
     }
 }
