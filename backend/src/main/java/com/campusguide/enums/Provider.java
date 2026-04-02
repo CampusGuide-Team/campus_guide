@@ -1,4 +1,4 @@
-package com.campusguide.entity;
+package com.campusguide.enums;
 
 public enum Provider {
     GOOGLE
