@@ -1,9 +1,8 @@
 package com.campusguide.entity;
 
 import com.campusguide.entity.Application;
-import com.campusguide.entity.Provider;
+import com.campusguide.enums.*;
 import com.campusguide.entity.Review;
-import com.campusguide.entity.Role;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
