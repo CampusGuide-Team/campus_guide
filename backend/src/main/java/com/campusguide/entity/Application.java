@@ -2,6 +2,7 @@ package com.campusguide.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.campusguide.enums.*;
 
 @Entity
 @Table(name = "applications",
