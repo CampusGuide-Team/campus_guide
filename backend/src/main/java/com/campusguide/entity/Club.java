@@ -26,23 +26,12 @@ public class Club {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-   /*
-    @ManyToOne
-    @JoinColumn(name = "building_id")
-    private Building building;
-*/
 
     @OneToMany(mappedBy = "club")
     private List<Application> applications;
 
     @OneToMany(mappedBy = "club")
-    private List<Review> reviews;
-
-    @OneToMany(mappedBy = "club")
     private List<ClubMember> clubMembers;
 
-    /*
-    @OneToMany(mappedBy = "club")
-    private List<ClubPhoto> clubPhotos;
-    */
+
 }

@@ -1,8 +1,6 @@
 package com.campusguide.entity;
 
-import com.campusguide.entity.Application;
 import com.campusguide.enums.*;
-import com.campusguide.entity.Review;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,8 +32,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Application> applications;
 
-    @OneToMany(mappedBy = "user")
-    private List<Review> reviews;
 
     @OneToMany(mappedBy = "user")
     private List<ClubMember> clubMembers;
