@@ -1,10 +1,10 @@
 package com.campusguide.application.entity;
 
+import com.campusguide.application.enums.ApplicationStatus;
 import com.campusguide.club.entity.Club;
 import com.campusguide.user.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import com.campusguide.enums.*;
 
 @Entity
 @Table(name = "applications",

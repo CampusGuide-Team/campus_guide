@@ -1,4 +1,4 @@
-package com.campusguide.enums;
+package com.campusguide.club.enums;
 
 public enum ClubRole {
     MEMBER,

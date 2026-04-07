@@ -1,9 +1,9 @@
 package com.campusguide.club.entity;
 
+import com.campusguide.club.enums.ClubRole;
 import com.campusguide.user.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import com.campusguide.enums.*;
 
 @Entity
 @Table(name = "club_members",

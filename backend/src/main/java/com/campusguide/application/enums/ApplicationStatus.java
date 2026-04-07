@@ -1,4 +1,4 @@
-package com.campusguide.enums;
+package com.campusguide.application.enums;
 
 public enum ApplicationStatus {
     PENDING

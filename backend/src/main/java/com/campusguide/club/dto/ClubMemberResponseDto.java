@@ -1,4 +1,4 @@
-package com.campusguide.dto;
+package com.campusguide.club.dto;
 
 import java.time.LocalDateTime;
 

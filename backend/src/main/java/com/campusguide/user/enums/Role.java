@@ -1,4 +1,4 @@
-package com.campusguide.enums;
+package com.campusguide.user.enums;
 
 public enum Role {
     USER,

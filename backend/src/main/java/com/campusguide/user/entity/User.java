@@ -2,7 +2,8 @@ package com.campusguide.user.entity;
 
 import com.campusguide.application.entity.Application;
 import com.campusguide.club.entity.ClubMember;
-import com.campusguide.enums.*;
+import com.campusguide.user.enums.Provider;
+import com.campusguide.user.enums.Role;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
