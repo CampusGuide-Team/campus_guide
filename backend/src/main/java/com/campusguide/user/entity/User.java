@@ -1,5 +1,7 @@
-package com.campusguide.entity;
+package com.campusguide.user.entity;
 
+import com.campusguide.application.entity.Application;
+import com.campusguide.club.entity.ClubMember;
 import com.campusguide.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

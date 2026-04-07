@@ -1,6 +1,6 @@
-package com.campusguide.repository;
+package com.campusguide.club.repository;
 
-import com.campusguide.entity.Club;
+import com.campusguide.club.entity.Club;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClubRepository extends JpaRepository<Club, Long> {

@@ -1,4 +1,4 @@
-package com.campusguide.chatbot;
+package com.campusguide.chatbot.dto;
 
 public record ChatRequest(
         String message
