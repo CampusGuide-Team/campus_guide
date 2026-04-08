@@ -32,4 +32,6 @@ public class Building {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private String category; // 강의동, 기숙사 명칭들 카테고리
+
 }

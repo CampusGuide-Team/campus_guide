@@ -3,6 +3,8 @@ package com.campusguide.club.entity;
 import com.campusguide.club.enums.ClubRole;
 import com.campusguide.user.entity.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,16 +16,18 @@ public class ClubMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) //필요할때만 추출
     @JoinColumn(name = "club_id")
     private Club club;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) //필요할때 만 추출Lazy
     @JoinColumn(name = "user_id")
     private User user;
 
     @Enumerated(EnumType.STRING)
     private ClubRole role;
 
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime joinedAt;
 }
