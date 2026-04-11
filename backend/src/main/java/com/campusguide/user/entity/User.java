@@ -6,10 +6,12 @@ import com.campusguide.user.enums.Provider;
 import com.campusguide.user.enums.Role;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Getter
+@Setter
 @Entity
 @Table(name = "users",
         uniqueConstraints = @UniqueConstraint(columnNames = {"provider", "provider_id"}))
