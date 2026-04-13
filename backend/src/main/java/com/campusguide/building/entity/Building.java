@@ -1,4 +1,4 @@
-package com.campusguide.buliding.entity;
+package com.campusguide.building.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
