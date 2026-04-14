@@ -34,4 +34,7 @@ public class Building {
 
     private String category; // 강의동, 기숙사 명칭들 카테고리
 
+    @OneToMany(mappedBy = "building")
+    private List<BuildingPlace> places;
+
 }

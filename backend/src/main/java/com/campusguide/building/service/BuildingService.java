@@ -20,12 +20,18 @@ public class BuildingService {
 
     // 건물 검색
     public List<Building> searchBuilding(String name) {
-        return buildingRepository.findByNameContaining(name);
+        return buildingRepository.findByNameContainingIgnoreCase(name);
     }
 
     // 건물 상세 조회
     public Building getBuilding(Long id) {
         return buildingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("건물을 찾을 수 없습니다."));
+    }
+
+    // 코드로 건물 찾기 (CSV 로딩 / 챗봇용)
+    public Building getBuildingByCode(String code) {
+        return buildingRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("건물 코드가 존재하지 않습니다."));
     }
 }
