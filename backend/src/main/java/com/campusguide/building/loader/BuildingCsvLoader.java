@@ -3,11 +3,16 @@ package com.campusguide.building.loader;
 import com.campusguide.building.entity.Building;
 import com.campusguide.building.repository.BuildingRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -18,39 +23,49 @@ public class BuildingCsvLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // 이미 데이터가 있으면 로딩 안하게했음
-        if(buildingRepository.count() > 0) {
+        // 이미 건물 데이터가 있으면 중복 저장 방지
+        if (buildingRepository.count() > 0) {
             return;
         }
 
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        getClass().getResourceAsStream("data/buildings.csv")
+        // src/main/resources/data/buildings.csv 읽기
+        ClassPathResource resource = new ClassPathResource("data/buildings.csv");
+
+        try (
+                Reader reader = new InputStreamReader(
+                        resource.getInputStream(),
+                        StandardCharsets.UTF_8
+                );
+
+                CSVParser csvParser = new CSVParser(
+                        reader,
+                        CSVFormat.DEFAULT.builder()
+                                .setHeader()
+                                .setSkipHeaderRecord(true)
+                                .setIgnoreSurroundingSpaces(true)
+                                .build()
                 )
-        );
+        ) {
+            for (CSVRecord record : csvParser) {
 
-        String line;
-        boolean firstLine = true;
+                // CSV 순서: 코드, 건물이름, 위도, 경도
+                String code = record.get(0).trim();
+                String name = record.get(1).trim();
+                Double latitude = Double.parseDouble(record.get(2).trim());
+                Double longitude = Double.parseDouble(record.get(3).trim());
 
-        while((line = reader.readLine()) != null){
+                Building building = Building.builder()
+                        .code(code)
+                        .name(name)
+                        .latitude(latitude)
+                        .longitude(longitude)
+                        // 현재 CSV에는 description/category 컬럼이 없어서 null로 둠
+                        .description(null)
+                        .category(null)
+                        .build();
 
-            if(firstLine){
-                firstLine = false;
-                continue;
+                buildingRepository.save(building);
             }
-
-            String[] data = line.split(",");
-
-            Building building = Building.builder()
-                    .code(data[0])
-                    .name(data[1])
-                    .latitude(Double.parseDouble(data[2]))
-                    .longitude(Double.parseDouble(data[3]))
-                    .description(data[4])
-                    .category(data[5])
-                    .build();
-
-            buildingRepository.save(building);
         }
 
         System.out.println("건물 CSV 데이터 로딩 완료");
