@@ -1,3 +1,4 @@
+/*
 package com.campusguide.user.oauth;
 
 import com.campusguide.user.security.JwtProvider;
@@ -41,3 +42,5 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
     }
 }
+
+ */

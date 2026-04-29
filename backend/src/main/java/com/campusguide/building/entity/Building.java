@@ -3,6 +3,8 @@ package com.campusguide.building.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "buildings")
 @Getter
@@ -16,7 +18,7 @@ public class Building {
     @Column(columnDefinition = "BIGINT")
     private Long id;
 
-    // W16 W18 같은코드
+    // W16 W18 같은 코드
     @Column(length = 20, unique = true)
     private String code;
 
@@ -32,9 +34,8 @@ public class Building {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String category; // 강의동, 기숙사 명칭들 카테고리
+    private String category; // 강의동, 기숙사 등 카테고리
 
     @OneToMany(mappedBy = "building")
     private List<BuildingPlace> places;
-
 }

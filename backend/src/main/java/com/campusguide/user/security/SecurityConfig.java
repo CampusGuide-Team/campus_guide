@@ -1,3 +1,4 @@
+/*
 package com.campusguide.user.security;
 
 import com.campusguide.user.oauth.CustomOAuth2UserService;
@@ -44,3 +45,5 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
+ */

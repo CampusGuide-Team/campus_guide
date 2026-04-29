@@ -14,7 +14,7 @@ public class BuildingPlaceService {
     private final BuildingPlaceRepository buildingPlaceRepository;
 
     public List<BuildingPlace> searchPlace(String keyword) {
-        return buildingPlaceRepository.findByPlaceContaining(keyword);
+        return buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword.trim());//공백 제거
     }
 
 }

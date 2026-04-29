@@ -3,22 +3,24 @@ package com.campusguide.chatbot.controller;
 import com.campusguide.chatbot.dto.ChatRequest;
 import com.campusguide.chatbot.dto.ChatResponse;
 import com.campusguide.chatbot.service.ChatbotService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/chatbot")
+@RequestMapping("/chat")
+@RequiredArgsConstructor
 public class ChatbotController {
 
     private final ChatbotService chatbotService;
 
-    public ChatbotController(ChatbotService chatbotService){
-        this.chatbotService = chatbotService;
+    @PostMapping
+    public ChatResponse chat(@RequestBody ChatRequest request) {
+        String answer = chatbotService.ask(request.getMessage());
+        return new ChatResponse(answer);
     }
 
-    @PostMapping
-    public ChatResponse chat(@RequestBody ChatRequest request){
-
-        String answer = chatbotService.askChatGPT(request.message());
-        return new ChatResponse(answer);
+    @GetMapping("/test")
+    public String test(@RequestParam String message) {
+        return chatbotService.ask(message);
     }
 }

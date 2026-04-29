@@ -1,6 +1,11 @@
 package com.campusguide.chatbot.dto;
 
-public record ChatResponse(
-        String answer
-) {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class ChatResponse {
+
+    private String answer;
 }

@@ -1,3 +1,4 @@
+/*
 package com.campusguide.user.oauth;
 
 import org.springframework.security.oauth2.client.userinfo.*;
@@ -21,3 +22,5 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return user;
     }
 }
+
+ */
