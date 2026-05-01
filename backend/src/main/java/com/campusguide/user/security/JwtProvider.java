@@ -11,8 +11,11 @@ import java.util.Date;
 @Component
 public class JwtProvider {
 
-    private final Key key = Keys.hmacShaKeyFor("12345678901234567890123456789012".getBytes());
+     private final Key key;
 
+    public JwtProvider(@Value("${jwt.secret}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
     public String createToken(Long userId) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))

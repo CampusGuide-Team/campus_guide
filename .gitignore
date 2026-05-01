@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### github에 안보이게
+application-secret.properties
