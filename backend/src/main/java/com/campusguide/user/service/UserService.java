@@ -16,9 +16,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User saveOrGet(String email, String name, String providerId) {
+    public User saveOrGet(String email, String name, String providerId, Provider provider) {
         return userRepository
-                .findByProviderAndProviderId(Provider.GOOGLE, providerId)
+                .findByProviderAndProviderId(provider, providerId)
                 .orElseGet(() -> {
                     User user = new User();
                     user.setEmail(email);
@@ -26,7 +26,6 @@ public class UserService {
                     user.setProvider(Provider.GOOGLE);
                     user.setProviderId(providerId);
                     user.setRole(Role.USER);
-                    user.setCreatedAt(LocalDateTime.now());
                     return userRepository.save(user);
                 });
     }

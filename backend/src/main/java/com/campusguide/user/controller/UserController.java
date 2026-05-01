@@ -1,4 +1,3 @@
-/*
 package com.campusguide.user.controller;
 
 import org.springframework.security.core.Authentication;
@@ -14,4 +13,3 @@ public class UserController {
     }
 }
 
- */
