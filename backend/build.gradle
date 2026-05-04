@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.h2database:h2' // 테스트 디비
+    testImplementation 'com.h2database:h2' // 테스트 디비
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	//implementation 'org.springframework.boot:spring-boot-starter-security' 이거 개발할떄는 주석처리
@@ -43,8 +43,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	runtimeOnly 'org.postgresql:postgresql'
+	//runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'org.postgresql:postgresql:42.7.3'
 }
 
 tasks.named('test') {
