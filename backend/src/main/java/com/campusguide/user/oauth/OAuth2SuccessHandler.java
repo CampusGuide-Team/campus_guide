@@ -1,9 +1,11 @@
-/*
+
 package com.campusguide.user.oauth;
 
+import com.campusguide.user.enums.Provider;
 import com.campusguide.user.security.JwtProvider;
 import com.campusguide.user.service.UserService;
 import jakarta.servlet.http.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -34,7 +36,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String name = oAuth2User.getAttribute("name");
         String providerId = oAuth2User.getAttribute("sub");
 
-        var user = userService.saveOrGet(email, name, providerId,Provider.GOOGLE);
+        var user = userService.saveOrGet(email, name, providerId, Provider.GOOGLE);
 
         String token = jwtProvider.createToken(user.getId());
 
@@ -46,4 +48,3 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 }
 
- */
