@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### github에 안보이게
-application-secret.properties
+backend/src/main/resources/application-secret.properties
