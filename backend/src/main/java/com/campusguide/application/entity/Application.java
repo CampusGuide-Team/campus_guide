@@ -4,8 +4,13 @@ import com.campusguide.application.enums.ApplicationStatus;
 import com.campusguide.club.entity.Club;
 import com.campusguide.user.entity.User;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "applications",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "club_id"}))

@@ -1,5 +1,8 @@
 package com.campusguide.application.enums;
 
 public enum ApplicationStatus {
-    PENDING
+    PENDING,
+    SUBMITTED,
+    ACCEPTED,
+    REJECTED
 }
