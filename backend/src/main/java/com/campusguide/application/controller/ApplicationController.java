@@ -3,7 +3,6 @@ package com.campusguide.application.controller;
 
 import com.campusguide.application.entity.Application;
 import com.campusguide.application.service.ApplicationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
