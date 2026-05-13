@@ -40,7 +40,7 @@ public class ApplicationController {
         return applicationService.accept(id);
     }
 
-    @PatchMapping("/{id}/accept")
+    @PatchMapping("/{id}/reject") //수정
     public Application reject(@PathVariable Long id){
         return applicationService.reject(id);
     }

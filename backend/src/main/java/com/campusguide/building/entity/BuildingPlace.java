@@ -29,4 +29,10 @@ public class BuildingPlace {
     // 시설 이름
     @Column(nullable = false, columnDefinition = "TEXT")
     private String place;
+
+    @Column(length = 50)
+    private String category;
+
+    @Column(columnDefinition = "TEXT")
+    private String tags;
 }

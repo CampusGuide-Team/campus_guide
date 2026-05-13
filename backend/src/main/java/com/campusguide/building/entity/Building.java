@@ -38,4 +38,8 @@ public class Building {
 
     @OneToMany(mappedBy = "building")
     private List<BuildingPlace> places;
+
+    @Column(columnDefinition = "TEXT")
+    private String tags; // 태그 추가
+
 }

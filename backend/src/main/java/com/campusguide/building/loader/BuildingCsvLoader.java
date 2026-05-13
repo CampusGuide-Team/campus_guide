@@ -23,13 +23,13 @@ public class BuildingCsvLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // 이미 건물 데이터가 있으면 중복 저장 방지
+        // 중복 저장 방지
         if (buildingRepository.count() > 0) {
             return;
         }
 
-        // src/main/resources/data/buildings.csv 읽기
-        ClassPathResource resource = new ClassPathResource("data/buildings.csv");
+        ClassPathResource resource =
+                new ClassPathResource("data/buildings.csv");
 
         try (
                 Reader reader = new InputStreamReader(
@@ -46,22 +46,32 @@ public class BuildingCsvLoader implements CommandLineRunner {
                                 .build()
                 )
         ) {
+
             for (CSVRecord record : csvParser) {
 
-                // CSV 순서: 코드, 건물이름, 위도, 경도
-                String code = record.get(0).trim();
-                String name = record.get(1).trim();
-                Double latitude = Double.parseDouble(record.get(2).trim());
-                Double longitude = Double.parseDouble(record.get(3).trim());
+                String code = record.get("코드").trim();
+                String name = record.get("건물이름").trim();
+
+                Double latitude =
+                        Double.parseDouble(record.get("위도").trim());
+
+                Double longitude =
+                        Double.parseDouble(record.get("경도").trim());
+
+                String category =
+                        record.get("카테고리").trim();
+
+                String tags =
+                        record.get("태그").trim();
 
                 Building building = Building.builder()
                         .code(code)
                         .name(name)
                         .latitude(latitude)
                         .longitude(longitude)
-                        // 현재 CSV에는 description/category 컬럼이 없어서 null로 둠
+                        .category(category)
+                        .tags(tags)
                         .description(null)
-                        .category(null)
                         .build();
 
                 buildingRepository.save(building);
