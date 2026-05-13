@@ -15,12 +15,11 @@ public class ChatbotController {
 
     @PostMapping
     public ChatResponse chat(@RequestBody ChatRequest request) {
-        String answer = chatbotService.ask(request.getMessage());
-        return new ChatResponse(answer);
+        return chatbotService.ask(request.getMessage());
     }
 
     @GetMapping("/test")
-    public String test(@RequestParam String message) {
+    public ChatResponse test(@RequestParam String message) {
         return chatbotService.ask(message);
     }
 }

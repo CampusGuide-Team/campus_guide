@@ -18,4 +18,14 @@ public class BuildingPlaceController {
     public List<BuildingPlace> searchPlace(@RequestParam String keyword) {
         return buildingPlaceService.searchPlace(keyword);
     }
+
+    @GetMapping("/category")
+    public List<BuildingPlace> getPlacesByCategory(@RequestParam String category) {
+        return buildingPlaceService.getPlacesByCategory(category);
+    }
+
+    @GetMapping("/tag")
+    public List<BuildingPlace> getPlacesByTag(@RequestParam String tag) {
+        return buildingPlaceService.getPlacesByTag(tag);
+    }
 }

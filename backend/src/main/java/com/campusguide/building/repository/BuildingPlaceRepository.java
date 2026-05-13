@@ -38,4 +38,9 @@ public interface BuildingPlaceRepository extends JpaRepository<BuildingPlace, Lo
      * 같은 질문을 했을 때 활용 가능
      */
     List<BuildingPlace> findByFloor(String floor);
+
+
+    List<BuildingPlace> findByCategory(String category);
+
+    List<BuildingPlace> findByTagsContainingIgnoreCase(String tag);
 }

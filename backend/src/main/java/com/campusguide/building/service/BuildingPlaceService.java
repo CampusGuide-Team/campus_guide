@@ -15,6 +15,14 @@ public class BuildingPlaceService {
 
     public List<BuildingPlace> searchPlace(String keyword) {
         return buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword.trim());//공백 제거
+
     }
 
+    public List<BuildingPlace> getPlacesByCategory(String category) {
+        return buildingPlaceRepository.findByCategory(category);
+    }
+
+    public List<BuildingPlace> getPlacesByTag(String tag) {
+        return buildingPlaceRepository.findByTagsContainingIgnoreCase(tag);
+    }
 }

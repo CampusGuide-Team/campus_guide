@@ -2,6 +2,7 @@ package com.campusguide.chatbot.service;
 
 import com.campusguide.building.entity.BuildingPlace;
 import com.campusguide.building.repository.BuildingPlaceRepository;
+import com.campusguide.chatbot.dto.ChatResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -21,7 +22,7 @@ public class ChatbotService {
     @Value("${openai.api.key}")
     private String apiKey;
 
-    public String ask(String message) {
+    public ChatResponse ask(String message) {
 
         // 1. GPT로 질문에서 핵심 검색어 추출
         String keyword = extractKeywordByGPT(message);
@@ -32,7 +33,16 @@ public class ChatbotService {
         }
 
         if (keyword.isBlank()) {
-            return "찾고 싶은 시설명을 입력해주세요.";
+            return new ChatResponse(
+                    "찾고 싶은 시설명을 입력해주세요.",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
 
         // 2. DB 검색
@@ -41,18 +51,38 @@ public class ChatbotService {
 
         // 3. 못 찾은 경우
         if (places.isEmpty()) {
-            return "'" + keyword + "' 위치를 찾을 수 없습니다.";
+            return new ChatResponse(
+                    "'" + keyword + "' 위치를 찾을 수 없습니다.",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
 
         // 4. 첫 번째 결과 사용
         BuildingPlace place = places.get(0);
 
         // 5. DB 결과 기반 답변
-        return place.getPlace() + "은(는) "
+        String answer = place.getPlace() + "은(는) "
                 + place.getBuilding().getName()
                 + " "
                 + place.getFloor()
                 + "층에 있습니다.";
+
+        return new ChatResponse(
+                answer,
+                place.getPlace(),
+                place.getBuilding().getName(),
+                place.getFloor(),
+                place.getBuilding().getLatitude(),
+                place.getBuilding().getLongitude(),
+                place.getCategory(),
+                place.getTags()
+        );
     }
 
     // GPT로 검색 키워드만 추출
@@ -100,8 +130,17 @@ public class ChatbotService {
             }
 
             List choices = (List) result.get("choices");
+
+            if (choices == null || choices.isEmpty()) {
+                return "";
+            }
+
             Map first = (Map) choices.get(0);
             Map msg = (Map) first.get("message");
+
+            if (msg == null || msg.get("content") == null) {
+                return "";
+            }
 
             return msg.get("content").toString()
                     .replace("\"", "")
