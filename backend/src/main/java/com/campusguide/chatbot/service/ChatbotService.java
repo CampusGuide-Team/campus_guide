@@ -49,6 +49,14 @@ public class ChatbotService {
         List<BuildingPlace> places =
                 buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword);
 
+        if (places.isEmpty()) {
+            places = buildingPlaceRepository.findByTagsContainingIgnoreCase(keyword);
+        }
+
+        if (places.isEmpty()) {
+            places = buildingPlaceRepository.findByCategory(keyword);
+        }
+
         // 3. 못 찾은 경우
         if (places.isEmpty()) {
             return new ChatResponse(

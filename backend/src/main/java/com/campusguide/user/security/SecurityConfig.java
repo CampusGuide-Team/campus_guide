@@ -3,6 +3,7 @@ package com.campusguide.user.security;
 import com.campusguide.user.oauth.CustomOAuth2UserService;
 import com.campusguide.user.oauth.OAuth2SuccessHandler;
 import org.springframework.context.annotation.*;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -25,9 +26,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/**",
+                                "/chat/**",
+                                "/places/**",
+                                "/buildings/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
@@ -44,4 +52,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
