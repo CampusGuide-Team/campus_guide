@@ -1,5 +1,6 @@
 package com.campusguide.building.service;
 
+import com.campusguide.building.dto.BuildingPlaceResponse;
 import com.campusguide.building.entity.BuildingPlace;
 import com.campusguide.building.repository.BuildingPlaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,16 +14,24 @@ public class BuildingPlaceService {
 
     private final BuildingPlaceRepository buildingPlaceRepository;
 
-    public List<BuildingPlace> searchPlace(String keyword) {
-        return buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword.trim());//공백 제거
-
+    public List<BuildingPlaceResponse> searchPlace(String keyword) {
+        return buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword.trim())
+                .stream()
+                .map(BuildingPlaceResponse::from)
+                .toList();
     }
 
-    public List<BuildingPlace> getPlacesByCategory(String category) {
-        return buildingPlaceRepository.findByCategory(category);
+    public List<BuildingPlaceResponse> getPlacesByCategory(String category) {
+        return buildingPlaceRepository.findByCategory(category)
+                .stream()
+                .map(BuildingPlaceResponse::from)
+                .toList();
     }
 
-    public List<BuildingPlace> getPlacesByTag(String tag) {
-        return buildingPlaceRepository.findByTagsContainingIgnoreCase(tag);
+    public List<BuildingPlaceResponse> getPlacesByTag(String tag) {
+        return buildingPlaceRepository.findByTagsContainingIgnoreCase(tag)
+                .stream()
+                .map(BuildingPlaceResponse::from)
+                .toList();
     }
 }
