@@ -1,5 +1,7 @@
 package com.campusguide.club.controller;
 
+import com.campusguide.club.dto.ClubMemberResponseDto;
+import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
 import com.campusguide.club.service.ClubService;
 import org.springframework.web.bind.annotation.*;
@@ -7,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/club")
+@RequestMapping("/clubs")
 public class ClubController {
 
     private final ClubService clubService;
@@ -16,25 +18,33 @@ public class ClubController {
         this.clubService = clubService;
     }
 
-    //Get /clubs
+    // GET /clubs
     @GetMapping
-    public List<Club> getAllclubs() {
+    public List<ClubResponseDto> getAllClubs() {
         return clubService.getAllClubs();
     }
 
-    //Get /clubs/search
+    // GET /clubs/search?keyword=개발
     @GetMapping("/search")
-    public List<Club> searchClubs(@RequestParam String keyword) {
+    public List<ClubResponseDto> searchClubs(@RequestParam String keyword) {
         return clubService.searchClubs(keyword);
     }
-    //Get /clubs/{id}
+
+    // GET /clubs/{id}
     @GetMapping("/{id}")
-    public Club getClub(@PathVariable Long id) {
+    public ClubResponseDto getClub(@PathVariable Long id) {
         return clubService.getClub(id);
     }
 
+    // GET /clubs/{id}/members
+    @GetMapping("/{id}/members")
+    public List<ClubMemberResponseDto> getClubMembers(@PathVariable Long id) {
+        return clubService.getClubMembers(id);
+    }
+
+    // POST /clubs
     @PostMapping
-    public Club createClub(@RequestBody Club club) {
+    public ClubResponseDto createClub(@RequestBody Club club) {
         return clubService.createClub(club);
     }
 }

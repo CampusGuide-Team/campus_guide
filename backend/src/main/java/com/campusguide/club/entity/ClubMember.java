@@ -3,10 +3,13 @@ package com.campusguide.club.entity;
 import com.campusguide.club.enums.ClubRole;
 import com.campusguide.user.entity.User;
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "club_members",
         uniqueConstraints = @UniqueConstraint(columnNames = {"club_id", "user_id"}))
