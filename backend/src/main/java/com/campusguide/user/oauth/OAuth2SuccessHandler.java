@@ -38,7 +38,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         var user = userService.saveOrGet(email, name, providerId, Provider.GOOGLE);
 
-        String token = jwtProvider.createToken(user.getId());
+        String token = jwtProvider.createToken(user.getId(), "ROLE_" + user.getRole().name());
 
         try {
             response.sendRedirect(frontendUrl+"/login/success?token=" + token);

@@ -36,6 +36,7 @@ public class SecurityConfig {
                                 "/places/**",
                                 "/buildings/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
