@@ -1,5 +1,6 @@
 package com.campusguide.user.service;
 
+import com.campusguide.user.dto.UpdateUserRequest;
 import com.campusguide.user.entity.User;
 import com.campusguide.user.enums.*;
 import com.campusguide.user.repository.UserRepository;
@@ -28,5 +29,18 @@ public class UserService {
                     user.setRole(Role.USER);
                     return userRepository.save(user);
                 });
+    }
+    public User updateUser(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        user.setStudentId(request.studentId());
+        user.setPhone(request.phone());
+        user.setDepartment(request.department());
+        return userRepository.save(user);
+    }
+
+    public User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
     }
 }
