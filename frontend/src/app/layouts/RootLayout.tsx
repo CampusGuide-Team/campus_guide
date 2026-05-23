@@ -8,7 +8,11 @@ import { useEffect, useState } from 'react';
 export function RootLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(getCurrentUser());
+  const [user, setUser] = useState(() => {
+    const userInfo = localStorage.getItem('user_info');
+    if (userInfo) return JSON.parse(userInfo);
+    return getCurrentUser();
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userIsAdmin = isAdmin();
   const userIsPresident = isPresident();
@@ -24,9 +28,13 @@ export function RootLayout() {
 
   // Update user state when location changes (for login/logout)
   useEffect(() => {
-    setUser(getCurrentUser());
+    const userInfo = localStorage.getItem('user_info');
+    if (userInfo) {
+      setUser(JSON.parse(userInfo));
+    } else {
+      setUser(getCurrentUser());
+    }
   }, [location]);
-
   // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -121,6 +129,12 @@ export function RootLayout() {
                       </Button>
                     </Link>
                   )}
+                  <Link to="/profile">
+                    <Button variant="outline" size="sm">
+                      <User className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">내 정보</span>
+                    </Button>
+                  </Link>
                   <Button variant="outline" size="sm" onClick={handleLogout}>
                     <LogOut className="w-4 h-4 md:mr-2" />
                     <span className="hidden md:inline">로그아웃</span>
@@ -193,6 +207,7 @@ export function RootLayout() {
                         챗봇
                       </Button>
                     </Link>
+
                     {user && (
                       <Link to="/my-applications">
                         <Button
@@ -203,6 +218,17 @@ export function RootLayout() {
                           내 신청
                         </Button>
                       </Link>
+                    )}
+                    {user && (
+                        <Link to="/profile">
+                          <Button
+                              variant={isActive('/profile') ? 'default' : 'ghost'}
+                              className="w-full justify-start"
+                          >
+                            <User className="w-5 h-5 mr-3" />
+                            내 정보
+                          </Button>
+                        </Link>
                     )}
                   </nav>
 
