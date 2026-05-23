@@ -16,6 +16,8 @@ import { PresidentDashboardPage } from './pages/president/PresidentDashboardPage
 import { ClubMembersPage } from './pages/president/ClubMembersPage';
 import { isAuthenticated, isAdmin, isPresident } from './utils/auth';
 import { LoginSuccessPage } from './pages/LoginSuccess';
+import { RegisterPage } from './pages/RegisterPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -59,22 +61,28 @@ export const router = createBrowserRouter([
       {
         path: 'my-applications',
         element: (
-          <ProtectedRoute>
-            <MyApplicationsPage />
-          </ProtectedRoute>
+            <ProtectedRoute>
+              <MyApplicationsPage />
+            </ProtectedRoute>
         ),
       },
       { path: 'chatbot', element: <ChatbotPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'login/success', element: <LoginSuccessPage /> },
+      { path: 'register', element: <RegisterPage /> },
+      { path: 'profile', element: (
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+        )},
     ],
   },
   {
     path: '/admin',
     element: (
-      <AdminRoute>
-        <AdminLayout />
-      </AdminRoute>
+        <AdminRoute>
+          <AdminLayout />
+        </AdminRoute>
     ),
     children: [
       { index: true, element: <AdminDashboardPage /> },
@@ -86,9 +94,9 @@ export const router = createBrowserRouter([
   {
     path: '/president',
     element: (
-      <PresidentRoute>
-        <RootLayout />
-      </PresidentRoute>
+        <PresidentRoute>
+          <RootLayout />
+        </PresidentRoute>
     ),
     children: [
       { index: true, element: <PresidentDashboardPage /> },
