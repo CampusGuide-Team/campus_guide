@@ -1,6 +1,7 @@
 package com.campusguide.admin.controller;
 
 import com.campusguide.admin.service.AdminService;
+import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
 import com.campusguide.club.entity.ClubMember;
 import com.campusguide.user.entity.User;
@@ -33,5 +34,11 @@ public class AdminController {
     public ClubMember assignLeader(@PathVariable Long clubId,
                                    @RequestParam String studentId) {
         return adminService.assignLeader(clubId, studentId);
+    }
+
+    // PATCH /admin/clubs/{id} - 동아리 수정
+    @PatchMapping("/clubs/{id}")
+    public ClubResponseDto updateClub(@PathVariable Long id, @RequestBody Club club) {
+        return adminService.updateClub(id, club);
     }
 }

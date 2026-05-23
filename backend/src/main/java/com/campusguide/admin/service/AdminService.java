@@ -1,5 +1,6 @@
 package com.campusguide.admin.service;
 
+import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
 import com.campusguide.club.entity.ClubMember;
 import com.campusguide.club.enums.ClubRole;
@@ -48,5 +49,18 @@ public class AdminService {
         clubMember.setRole(ClubRole.LEADER);
 
         return clubMemberRepository.save(clubMember);
+    }
+
+    // 동아리 정보 업데이트
+    public ClubResponseDto updateClub(Long id, Club clubData) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다."));
+        if (clubData.getName() != null) club.setName(clubData.getName());
+        if (clubData.getDescription() != null) club.setDescription(clubData.getDescription());
+        if (clubData.getThumbnailUrl() != null) club.setThumbnailUrl(clubData.getThumbnailUrl());
+        if (clubData.getCategory() != null) club.setCategory(clubData.getCategory());
+        if (clubData.getRecruitStart() != null) club.setRecruitStart(clubData.getRecruitStart());
+        if (clubData.getRecruitEnd() != null) club.setRecruitEnd(clubData.getRecruitEnd());
+        return ClubResponseDto.from(clubRepository.save(club));
     }
 }
