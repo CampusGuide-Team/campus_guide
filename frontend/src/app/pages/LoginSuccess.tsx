@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { api } from '../utils/api';
 
 export function LoginSuccessPage() {
   const navigate = useNavigate();
@@ -9,7 +10,17 @@ export function LoginSuccessPage() {
     const token = searchParams.get('token');
     if (token) {
       localStorage.setItem('token', token);
-      navigate('/');
+
+      api.get('/users/me/profile').then((user: any) => {
+        localStorage.setItem('user_info', JSON.stringify(user));
+        if (!user.studentId || !user.phone || !user.department) {
+          navigate('/register');
+        } else {
+          navigate('/');
+        }
+      }).catch(() => {
+        navigate('/');
+      });
     } else {
       navigate('/login');
     }
