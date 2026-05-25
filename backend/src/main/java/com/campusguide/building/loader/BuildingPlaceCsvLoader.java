@@ -32,7 +32,7 @@ public class BuildingPlaceCsvLoader implements CommandLineRunner {
         }
 
         // src/main/resources/data/building_info.csv 파일 읽기
-        ClassPathResource resource = new ClassPathResource("data/building_info.csv");
+        ClassPathResource resource = new ClassPathResource("data/building_places_tags_1.csv");
 
         try (
                 Reader reader = new InputStreamReader(
