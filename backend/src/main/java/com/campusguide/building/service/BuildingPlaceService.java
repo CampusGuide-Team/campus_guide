@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +34,15 @@ public class BuildingPlaceService {
                 .stream()
                 .map(BuildingPlaceResponse::from)
                 .toList();
+    }
+
+    public List<String> getCategories() {
+        return buildingPlaceRepository.findAll()
+                .stream()
+                .map(BuildingPlace::getCategory)
+                .filter(c -> c != null && !c.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

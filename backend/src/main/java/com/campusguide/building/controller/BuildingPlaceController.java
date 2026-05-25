@@ -24,8 +24,15 @@ public class BuildingPlaceController {
         return buildingPlaceService.getPlacesByCategory(category);
     }
 
+    @GetMapping("/categories")
+    public List<String> getCategories() {
+        return buildingPlaceService.getCategories();
+    }
+
     @GetMapping("/tag")
     public List<BuildingPlaceResponse> getPlacesByTag(@RequestParam String tag) {
         return buildingPlaceService.getPlacesByTag(tag);
     }
+
+
 }
