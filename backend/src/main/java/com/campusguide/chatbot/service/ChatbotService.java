@@ -24,6 +24,46 @@ public class ChatbotService {
 
     public ChatResponse ask(String message) {
 
+        // 건물 내부 시설 조회 질문 처리
+        if (message.contains("뭐 있어")
+                || message.contains("시설")
+                || message.contains("안에")
+                || message.contains("뭐있어")) {
+
+            String buildingKeyword = extractKeyword(message);
+
+            List<BuildingPlace> buildingPlaces =
+                    buildingPlaceRepository.findByBuilding_Name(buildingKeyword);
+
+            if (!buildingPlaces.isEmpty()) {
+
+                StringBuilder builder = new StringBuilder();
+
+                builder.append(buildingKeyword)
+                        .append("에는 다음 시설들이 있습니다.\n\n");
+
+                for (BuildingPlace p : buildingPlaces) {
+
+                    builder.append("- ")
+                            .append(p.getPlace())
+                            .append(" (")
+                            .append(p.getFloor())
+                            .append("층)\n");
+                }
+
+                return new ChatResponse(
+                        builder.toString(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                );
+            }
+        }
+
         // 1. GPT로 질문에서 핵심 검색어 추출
         String keyword = extractKeywordByGPT(message);
 
@@ -50,19 +90,64 @@ public class ChatbotService {
         //2. 태그(tags)
         //3. 건물명(building name)
         //4. 카테고리(category)
-        List<BuildingPlace> places =
-                buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword);
+        List<BuildingPlace> places = new ArrayList<>();
 
+// 1순위: 시설명 완전 포함
+        List<BuildingPlace> exactPlaces =
+                buildingPlaceRepository.findByPlaceIgnoreCase(keyword);
+
+        if (!exactPlaces.isEmpty()) {
+            places = exactPlaces;
+        } else {
+
+            places = buildingPlaceRepository
+                    .findByPlaceContainingIgnoreCase(keyword);
+        }
+// 2순위: 태그 검색
         if (places.isEmpty()) {
-            places = buildingPlaceRepository.findByTagsContainingIgnoreCase(keyword);
+
+            List<BuildingPlace> tagResults =
+                    buildingPlaceRepository.findByTagsContainingIgnoreCase(keyword);
+
+            // 태그 길이 필터
+            for (BuildingPlace p : tagResults) {
+
+                if (p.getTags() != null) {
+
+                    String[] splitTags = p.getTags().split(",");
+
+                    for (String tag : splitTags) {
+
+                        String trimmed = tag.trim();
+
+                        // 완전 일치 우선
+                        if (trimmed.equalsIgnoreCase(keyword)) {
+                            places.add(p);
+                            break;
+                        }
+
+                        // 2글자 이상일 때만 포함 검색 허용
+                        if (keyword.length() >= 2 &&
+                                trimmed.contains(keyword)) {
+
+                            places.add(p);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
+// 3순위: 건물명 검색
         if (places.isEmpty()) {
-            places = buildingPlaceRepository.findByBuilding_NameContainingIgnoreCase(keyword);
+            places = buildingPlaceRepository
+                    .findByBuilding_NameContainingIgnoreCase(keyword);
         }
 
+// 4순위: 카테고리 검색
         if (places.isEmpty()) {
-            places = buildingPlaceRepository.findByCategory(keyword);
+            places = buildingPlaceRepository
+                    .findByCategory(keyword);
         }
 
         // 3. 못 찾은 경우
@@ -78,6 +163,38 @@ public class ChatbotService {
                     null
             );
         }
+
+        if (places.size() > 1) {
+
+            StringBuilder builder = new StringBuilder();
+
+            builder.append("'")
+                    .append(keyword)
+                    .append("' 관련 결과가 여러 개 있습니다.\n\n");
+
+            for (BuildingPlace p : places) {
+
+                builder.append("- ")
+                        .append(p.getPlace())
+                        .append(" → ")
+                        .append(p.getBuilding().getName())
+                        .append(" ")
+                        .append(p.getFloor())
+                        .append("층\n");
+            }
+
+            return new ChatResponse(
+                    builder.toString(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        }
+
 
         // 4. 첫 번째 결과 사용
         BuildingPlace place = places.get(0);
@@ -177,7 +294,16 @@ public class ChatbotService {
                 .replace("알려줘", "")
                 .replace("있어", "")
                 .replace("있나요", "")
+                .replace("뭐 있어", "")
+                .replace("뭐있어", "")
+                .replace("시설", "")
+                .replace("안에", "")
+                .replace("에", "")
                 .replace("?", "")
+                .replace("에는", "")
+                .replace("는", "")
+                .replace("어디있어", "")
+                .replace("과", "") //테스트용 추가
                 .trim();
     }
 

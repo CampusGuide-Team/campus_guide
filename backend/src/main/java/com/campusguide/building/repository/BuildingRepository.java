@@ -16,4 +16,6 @@ public interface BuildingRepository extends JpaRepository<Building, Long> {
     List<Building> findByNameContainingIgnoreCase(String keyword);
 
     Optional<Building> findByCode(String code);
+
+
 }

@@ -16,4 +16,8 @@ public interface BuildingPlaceRepository extends JpaRepository<BuildingPlace, Lo
     List<BuildingPlace> findByTagsContainingIgnoreCase(String tag);
 
     List<BuildingPlace> findByBuilding_NameContainingIgnoreCase(String name);
+
+    List<BuildingPlace> findByPlaceIgnoreCase(String place);
+
+    List<BuildingPlace> findByBuilding_Name(String name);
 }
