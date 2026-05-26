@@ -45,12 +45,20 @@ public class ChatbotService {
             );
         }
 
-        // 2. DB 검색
+        // 2. DB 검색 우선순위
+        //1. 시설명(place)
+        //2. 태그(tags)
+        //3. 건물명(building name)
+        //4. 카테고리(category)
         List<BuildingPlace> places =
                 buildingPlaceRepository.findByPlaceContainingIgnoreCase(keyword);
 
         if (places.isEmpty()) {
             places = buildingPlaceRepository.findByTagsContainingIgnoreCase(keyword);
+        }
+
+        if (places.isEmpty()) {
+            places = buildingPlaceRepository.findByBuilding_NameContainingIgnoreCase(keyword);
         }
 
         if (places.isEmpty()) {
@@ -60,7 +68,7 @@ public class ChatbotService {
         // 3. 못 찾은 경우
         if (places.isEmpty()) {
             return new ChatResponse(
-                    "'" + keyword + "' 위치를 찾을 수 없습니다.",
+                    "'" + keyword + "' 에 대한 위치를 찾지 못했어요. 다른 이름이나 줄임 및 명칭으로 입력해보세요!!",
                     null,
                     null,
                     null,
@@ -75,11 +83,7 @@ public class ChatbotService {
         BuildingPlace place = places.get(0);
 
         // 5. DB 결과 기반 답변
-        String answer = place.getPlace() + "은(는) "
-                + place.getBuilding().getName()
-                + " "
-                + place.getFloor()
-                + "층에 있습니다.";
+        String answer = makeLocationAnswer(place);
 
         return new ChatResponse(
                 answer,
@@ -175,5 +179,18 @@ public class ChatbotService {
                 .replace("있나요", "")
                 .replace("?", "")
                 .trim();
+    }
+
+    // 여기 추가
+
+    private String makeLocationAnswer(BuildingPlace place) {
+
+        String placeName = place.getPlace();
+        String buildingName = place.getBuilding().getName();
+        String floor = place.getFloor();
+
+        return placeName + "은 "
+                + buildingName + " "
+                + floor + "층에 있어요.";
     }
 }
