@@ -17,6 +17,7 @@ type ChatApiResponse = {
 };
 
 export function ChatbotPage() {
+
     const [messages, setMessages] = useState<ChatMessage[]>([
         {
             id: 'initial',
@@ -28,20 +29,32 @@ export function ChatbotPage() {
     ]);
 
     const [input, setInput] = useState('');
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const recommendQuestions = [
+        '학생식당 어디야?',
+        '헬스장 어디야?',
+        '컴공 어디야?',
+        '학생회관에 뭐 있어?',
+        '미래융합정보관에 뭐 있어?',
+    ];
+
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current?.scrollIntoView({
+            behavior: 'smooth',
+        });
     };
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = async () => {
-        if (!input.trim()) return;
+    const sendMessage = async (text: string) => {
 
-        const userInput = input.trim();
+        if (!text.trim()) return;
+
+        const userInput = text.trim();
 
         const userMessage: ChatMessage = {
             id: `msg-${Date.now()}`,
@@ -51,9 +64,11 @@ export function ChatbotPage() {
         };
 
         setMessages((prev) => [...prev, userMessage]);
+
         setInput('');
 
         try {
+
             const response = await fetch('http://localhost:8080/chat', {
                 method: 'POST',
                 headers: {
@@ -80,13 +95,15 @@ export function ChatbotPage() {
             setMessages((prev) => [...prev, botResponse]);
 
             console.log('챗봇 응답:', data);
+
         } catch (error) {
+
             console.error(error);
 
             const errorMessage: ChatMessage = {
                 id: `msg-${Date.now()}-error`,
                 role: 'assistant',
-                content: '서버와 연결할 수 없습니다. 백엔드가 실행 중인지 확인해주세요.',
+                content: '서버와 연결할 수 없습니다. 잠시후에 시도해주세요.',
                 timestamp: new Date().toISOString(),
             };
 
@@ -94,23 +111,35 @@ export function ChatbotPage() {
         }
     };
 
+    const handleSend = async () => {
+        await sendMessage(input);
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
+
         if (e.key === 'Enter' && !e.shiftKey) {
+
             e.preventDefault();
+
             handleSend();
         }
     };
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
+
             <div>
-                <h1 className="text-3xl font-bold mb-2">AI 챗봇</h1>
+                <h1 className="text-3xl font-bold mb-2">
+                    AI 챗봇
+                </h1>
+
                 <p className="text-gray-600">
                     학교 정보나 동아리에 대해 궁금한 것을 물어보세요
                 </p>
             </div>
 
             <Card className="h-[600px] flex flex-col">
+
                 <CardHeader className="border-b">
                     <CardTitle className="flex items-center gap-2">
                         <Bot className="w-5 h-5" />
@@ -119,13 +148,18 @@ export function ChatbotPage() {
                 </CardHeader>
 
                 <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+
                     {messages.map((message) => (
+
                         <div
                             key={message.id}
                             className={`flex gap-3 ${
-                                message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+                                message.role === 'user'
+                                    ? 'flex-row-reverse'
+                                    : 'flex-row'
                             }`}
                         >
+
                             <div
                                 className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                                     message.role === 'user'
@@ -133,11 +167,13 @@ export function ChatbotPage() {
                                         : 'bg-gray-200 text-gray-600'
                                 }`}
                             >
+
                                 {message.role === 'user' ? (
                                     <User className="w-4 h-4" />
                                 ) : (
                                     <Bot className="w-4 h-4" />
                                 )}
+
                             </div>
 
                             <div
@@ -147,25 +183,58 @@ export function ChatbotPage() {
                                         : 'bg-gray-100 text-gray-900'
                                 }`}
                             >
-                                <p className="text-sm whitespace-pre-line">{message.content}</p>
+
+                                <p className="text-sm whitespace-pre-line">
+                                    {message.content}
+                                </p>
+
                                 <p
                                     className={`text-xs mt-1 ${
-                                        message.role === 'user' ? 'text-blue-200' : 'text-gray-500'
+                                        message.role === 'user'
+                                            ? 'text-blue-200'
+                                            : 'text-gray-500'
                                     }`}
                                 >
-                                    {new Date(message.timestamp).toLocaleTimeString('ko-KR', {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
+                                    {new Date(message.timestamp).toLocaleTimeString(
+                                        'ko-KR',
+                                        {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        }
+                                    )}
                                 </p>
+
                             </div>
+
                         </div>
+
                     ))}
+
                     <div ref={messagesEndRef} />
+
                 </CardContent>
 
                 <div className="border-t p-4">
+
+                    <div className="flex flex-wrap gap-2 mb-3">
+
+                        {recommendQuestions.map((question) => (
+
+                            <Button
+                                key={question}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => sendMessage(question)}
+                            >
+                                {question}
+                            </Button>
+
+                        ))}
+
+                    </div>
+
                     <div className="flex gap-2">
+
                         <Input
                             type="text"
                             placeholder="메시지를 입력하세요..."
@@ -173,12 +242,20 @@ export function ChatbotPage() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
-                        <Button onClick={handleSend} disabled={!input.trim()}>
+
+                        <Button
+                            onClick={handleSend}
+                            disabled={!input.trim()}
+                        >
                             <Send className="w-4 h-4" />
                         </Button>
+
                     </div>
+
                 </div>
+
             </Card>
+
         </div>
     );
 }
