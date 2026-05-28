@@ -38,3 +38,6 @@ out/
 
 ### github에 안보이게
 backend/src/main/resources/application-secret.properties
+
+### kakaoapi key secret
+frontend/.env
