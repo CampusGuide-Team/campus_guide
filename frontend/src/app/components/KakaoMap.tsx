@@ -35,20 +35,23 @@ export function KakaoMap({ latitude, longitude, name }: KakaoMapProps) {
 
     // Kakao Maps SDK 로드
     const script = document.createElement('script');
+
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_API_KEY}&autoload=false`;
     script.async = true;
 
     script.onload = () => {
+      console.log('SDK loaded');
+
       window.kakao.maps.load(() => {
+        console.log('kakao.maps.load success');
         initializeMap();
       });
     };
 
-    script.onerror = () => {
-      console.error('Kakao Maps SDK 로드 실패');
+    script.onerror = (e) => {
+      console.error('Kakao Maps SDK 로드 실패', e);
       setError(true);
     };
-
     document.head.appendChild(script);
 
     return () => {
@@ -57,6 +60,9 @@ export function KakaoMap({ latitude, longitude, name }: KakaoMapProps) {
   }, [latitude, longitude, name]);
 
   const initializeMap = () => {
+
+    console.log('initializeMap 호출');
+
     if (!mapContainer.current) return;
 
     try {
