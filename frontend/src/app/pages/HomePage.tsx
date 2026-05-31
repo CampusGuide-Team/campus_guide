@@ -8,6 +8,8 @@ import { getClubs } from '../data/mockData';
 export function HomePage() {
   const clubs = getClubs().filter(c => c.status === 'ACTIVE').slice(0, 3);
 
+
+
   return (
     <div className="space-y-12 md:space-y-16">
       {/* Hero Section */}

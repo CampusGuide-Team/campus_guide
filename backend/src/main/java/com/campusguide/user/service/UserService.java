@@ -43,4 +43,21 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
     }
+
+    //임의의 데이터 만들 때 필요
+    public User saveDevUser(String email, String name) {
+
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+
+                    User user = new User();
+
+                    user.setEmail(email);
+                    user.setName(name);
+
+                    user.setRole(Role.USER);
+
+                    return userRepository.save(user);
+                });
+    }
 }

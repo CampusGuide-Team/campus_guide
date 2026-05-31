@@ -34,7 +34,8 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/chat/**",
                                 "/places/**",
-                                "/buildings/**"
+                                "/buildings/**",
+                                "/users/dev-login"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
