@@ -38,4 +38,14 @@ export const api = {
     if (!res.ok) throw new Error('API 오류');
     return res.json();
   },
+  delete: async (url: string) => {
+    const res = await fetch(`${BASE_URL}${url}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+
+    if (!res.ok) throw new Error('API 오류');
+  },
 };

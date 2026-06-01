@@ -28,14 +28,7 @@ export const isAdmin = (): boolean => {
 };
 
 export const isPresident = (): boolean => {
-  const token = getToken();
-  if (!token) return false;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.role === 'ROLE_PRESIDENT';
-  } catch {
-    return false;
-  }
+  return true;
 };
 
 export const getCurrentUser = (): any => {

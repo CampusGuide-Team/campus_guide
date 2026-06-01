@@ -21,6 +21,7 @@ public class Club {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String name;
 
     @Column(columnDefinition = "TEXT")
@@ -38,12 +39,19 @@ public class Club {
     @UpdateTimestamp //자동으로 변경사항 업데이트
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "club")
+    @OneToMany(
+            mappedBy = "club",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<Application> applications;
 
-    @OneToMany(mappedBy = "club")
+    @OneToMany(
+            mappedBy = "club",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<ClubMember> clubMembers;
-
     @Enumerated(EnumType.STRING) //햇갈림 방지 enum 추가해서 카테고리 추가
     private ClubCategory category;
 

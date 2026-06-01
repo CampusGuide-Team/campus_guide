@@ -27,9 +27,21 @@ public class AdminService {
 
     // 동아리 생성
     public Club createClub(Club club) {
+
+        if (clubRepository.findByName(club.getName()).isPresent()) {
+            throw new RuntimeException("이미 존재하는 동아리명입니다.");
+        }
+
         return clubRepository.save(club);
     }
 
+    public void deleteClub(Long id) {
+
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다."));
+
+        clubRepository.delete(club);
+    }
     // 학번으로 유저 검색
     public User findUserByStudentId(String studentId) {
         return userRepository.findByStudentId(studentId)
@@ -38,10 +50,20 @@ public class AdminService {
 
     // 동아리장 지정
     public ClubMember assignLeader(Long clubId, String studentId) {
+
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다."));
+
         User user = userRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("해당 학번의 유저를 찾을 수 없습니다."));
+
+        // 기존 회장 MEMBER로 변경
+        club.getClubMembers().stream()
+                .filter(m -> m.getRole() == ClubRole.LEADER)
+                .forEach(m -> {
+                    m.setRole(ClubRole.MEMBER);
+                    clubMemberRepository.save(m);
+                });
 
         ClubMember clubMember = new ClubMember();
         clubMember.setClub(club);

@@ -35,7 +35,9 @@ public class SecurityConfig {
                                 "/chat/**",
                                 "/places/**",
                                 "/buildings/**",
-                                "/users/dev-login"
+                                "/users/dev-login", // 개발자 로그인
+                                "/clubs",// 동아리
+                                "/clubs/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()

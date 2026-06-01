@@ -31,14 +31,23 @@ public class AdminController {
 
     // POST /admin/clubs/{clubId}/leader?studentId=202012345 - 동아리장 지정
     @PostMapping("/clubs/{clubId}/leader")
-    public ClubMember assignLeader(@PathVariable Long clubId,
-                                   @RequestParam String studentId) {
-        return adminService.assignLeader(clubId, studentId);
+    public String assignLeader(@PathVariable Long clubId,
+                               @RequestParam String studentId) {
+
+        adminService.assignLeader(clubId, studentId);
+
+        return "success";
     }
 
     // PATCH /admin/clubs/{id} - 동아리 수정
     @PatchMapping("/clubs/{id}")
     public ClubResponseDto updateClub(@PathVariable Long id, @RequestBody Club club) {
         return adminService.updateClub(id, club);
+    }
+
+    //delete club
+    @DeleteMapping("/clubs/{id}")
+    public void deleteClub(@PathVariable Long id) {
+        adminService.deleteClub(id);
     }
 }

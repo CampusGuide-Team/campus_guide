@@ -56,4 +56,8 @@ public class ApplicationService {
         application.setStatus(ApplicationStatus.REJECTED);
         return applicationRepository.save(application);
     }
+
+    public List<Application> getClubApplications(Long clubId) {
+        return applicationRepository.findByClubId(clubId);
+    }
 }

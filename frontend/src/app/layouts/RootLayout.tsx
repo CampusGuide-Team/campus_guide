@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '../components/ui/
 import { Home, List, MessageSquare, FileText, LogOut, User, Shield, Users, Menu, MapPin } from 'lucide-react';
 import { getCurrentUser, logout, isAdmin, isPresident } from '../utils/auth';
 import { useEffect, useState } from 'react';
+import { api } from '../utils/api';
 
 export function RootLayout() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export function RootLayout() {
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const userIsAdmin = isAdmin();
-  const userIsPresident = isPresident();
+  const [userIsPresident, setUserIsPresident] = useState(false);
 
   useEffect(() => {
     // Listen for auth changes
@@ -40,6 +41,19 @@ export function RootLayout() {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+
+    if (!user) return;
+
+    api.get('/users/me/is-president')
+        .then((result: boolean) => {
+          setUserIsPresident(result);
+        })
+        .catch(() => {
+          setUserIsPresident(false);
+        });
+
+  }, [user]);
   const handleLogout = () => {
     logout();
     setUser(null);

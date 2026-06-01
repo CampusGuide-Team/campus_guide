@@ -55,10 +55,24 @@ export function AdminClubsPage() {
     });
     setShowDialog(true);
   };
+  const handleDelete = async (clubId: number) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      await api.delete(`/admin/clubs/${clubId}`);
+      toast.success('동아리가 삭제되었습니다');
+      fetchClubs();
+    } catch (e) {
+      console.error(e);
+      toast.error('삭제에 실패했습니다');
+    }
+  };
 
   const handleEdit = (club: any) => {
     setEditingClub(club);
-    setStudentId('');
+
+    setStudentId(club.leaderStudentId || '');
+
     setFormData({
       name: club.name,
       description: club.description || '',
@@ -67,9 +81,9 @@ export function AdminClubsPage() {
       recruitStart: club.recruitStart || '',
       recruitEnd: club.recruitEnd || '',
     });
+
     setShowDialog(true);
   };
-
   const handleSubmit = async () => {
     if (!formData.name || !formData.description) {
       toast.error('필수 항목을 모두 입력해주세요');
@@ -78,19 +92,41 @@ export function AdminClubsPage() {
 
     try {
       if (editingClub) {
-        await api.patch(`/admin/clubs/${editingClub.id}`, formData);
-        toast.success('동아리가 수정되었습니다');
-      } else {
-        const newClub = await api.post('/admin/clubs', formData);
-        // 동아리장 지정
-        if (studentId) {
-          await api.post(`/admin/clubs/${newClub.id}/leader?studentId=${studentId}`);
+
+        await api.patch(
+            `/admin/clubs/${editingClub.id}`,
+            formData
+        );
+
+        if (studentId.trim()) {
+          await api.post(
+              `/admin/clubs/${editingClub.id}/leader?studentId=${studentId}`
+          );
         }
+
+        toast.success('동아리가 수정되었습니다');
+
+      } else {
+
+        const newClub = await api.post(
+            '/admin/clubs',
+            formData
+        );
+
+        if (studentId.trim()) {
+          await api.post(
+              `/admin/clubs/${newClub.id}/leader?studentId=${studentId}`
+          );
+        }
+
         toast.success('동아리가 추가되었습니다');
       }
+
       setShowDialog(false);
       fetchClubs();
+
     } catch (e) {
+      console.error(e);
       toast.error('저장에 실패했습니다');
     }
   };
@@ -120,34 +156,64 @@ export function AdminClubsPage() {
                 <TableRow>
                   <TableHead>이름</TableHead>
                   <TableHead>카테고리</TableHead>
+                  <TableHead>회장</TableHead>
+                  <TableHead>학번</TableHead>
                   <TableHead>회원수</TableHead>
                   <TableHead>모집기간</TableHead>
                   <TableHead className="text-right">작업</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clubs.map(club => (
+                {clubs.map((club) => (
                     <TableRow key={club.id}>
-                      <TableCell className="font-medium">{club.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {club.name}
+                      </TableCell>
+
                       <TableCell>
                         {club.category && (
-                            <Badge variant="secondary">{club.category}</Badge>
+                            <Badge variant="secondary">
+                              {club.category}
+                            </Badge>
                         )}
                       </TableCell>
-                      <TableCell>{club.memberCount}명</TableCell>
+
+                      <TableCell>
+                        {club.leaderName || '-'}
+                      </TableCell>
+
+                      <TableCell>
+                        {club.leaderStudentId || '-'}
+                      </TableCell>
+
+                      <TableCell>
+                        {club.memberCount}명
+                      </TableCell>
+
                       <TableCell>
                         {club.recruitStart && club.recruitEnd
                             ? `${club.recruitStart} ~ ${club.recruitEnd}`
                             : '-'}
                       </TableCell>
+
                       <TableCell className="text-right">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(club)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(club)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+
+                          <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDelete(club.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                 ))}
@@ -226,16 +292,14 @@ export function AdminClubsPage() {
                 </div>
               </div>
 
-              {!editingClub && (
-                  <div className="space-y-2">
-                    <Label>동아리장 학번</Label>
-                    <Input
-                        placeholder="202012345"
-                        value={studentId}
-                        onChange={(e) => setStudentId(e.target.value)}
-                    />
-                  </div>
-              )}
+              <div className="space-y-2">
+                <Label>동아리장 학번</Label>
+                <Input
+                    placeholder="202012345"
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowDialog(false)}>취소</Button>

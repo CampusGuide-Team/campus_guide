@@ -9,6 +9,9 @@ import com.campusguide.user.security.JwtProvider;
 import com.campusguide.user.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.campusguide.club.enums.ClubRole;
+import com.campusguide.club.repository.ClubMemberRepository;
+
 
 @RestController
 @RequestMapping("/users")
@@ -16,10 +19,12 @@ public class UserController {
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
+    private final ClubMemberRepository clubMemberRepository;
 
-    public UserController(UserService userService,JwtProvider jwtProvider) {
+    public UserController(UserService userService,JwtProvider jwtProvider,ClubMemberRepository clubMemberRepository) {
         this.userService = userService;
         this.jwtProvider = jwtProvider;
+        this.clubMemberRepository = clubMemberRepository;
     }
 
     @GetMapping("/me")
@@ -55,6 +60,17 @@ public class UserController {
         );
 
         return new DevLoginResponse(token);
+    }
+
+    @GetMapping("/me/is-president")
+    public boolean isPresident(Authentication authentication) {
+
+        Long userId = (Long) authentication.getPrincipal();
+
+        return clubMemberRepository.existsByUserIdAndRole(
+                userId,
+                ClubRole.LEADER
+        );
     }
 
 

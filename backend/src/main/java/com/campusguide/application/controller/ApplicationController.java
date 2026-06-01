@@ -34,6 +34,13 @@ public class ApplicationController {
         return applicationService.getMyApplications(userId);
     }
 
+    @GetMapping("/club/{clubId}")
+    public List<Application> getClubApplications(
+            @PathVariable Long clubId
+    ) {
+        return applicationService.getClubApplications(clubId);
+    }
+
     //PATCH /applications/{id}/accept
     @PatchMapping("/{id}/accept")
     public Application accept(@PathVariable Long id){
