@@ -74,10 +74,14 @@ export interface Application {
 }
 
 export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: string;
+
+    latitude?: number | null;
+    longitude?: number | null;
+    placeName?: string | null;
 }
 
 export interface AuthState {
