@@ -77,7 +77,7 @@ export function MyApplicationsPage() {
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2">
                             {/* 💡 백엔드 엔티티 매핑에 맞춰 club?.name 으로 수정 */}
-                            {application.club?.name || '정보 없음'}
+                            {application.clubName || '정보 없음'}
                           </CardTitle>
                         </div>
                         {getStatusBadge(application.status)}
@@ -94,7 +94,7 @@ export function MyApplicationsPage() {
 
                       <div className="pt-2">
                         {/* 💡 백엔드 엔티티 매핑에 맞춰 club?.id 로 수정 */}
-                        <Link to={`/clubs/${application.club?.id}`}>
+                        <Link to={`/clubs/${application.clubId}`}>
                           <Button variant="outline" size="sm">동아리 상세 보기</Button>
                         </Link>
                       </div>

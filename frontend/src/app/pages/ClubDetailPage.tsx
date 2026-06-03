@@ -41,14 +41,18 @@ export function ClubDetailPage() {
     fetchData();
   }, [id]);
 
+  const isRecruitmentActive = () => {
+    if (!club?.recruitStart || !club?.recruitEnd) return true;
+    const now = new Date();
+    const start = new Date(club.recruitStart);
+    const end = new Date(club.recruitEnd);
+    return now >= start && now <= end;
+  };
+
   const handleApply = () => {
     if (!localStorage.getItem('token')) {
       toast.error('로그인이 필요합니다');
       navigate('/login');
-      return;
-    }
-    if (existingApplication) {
-      toast.error('이미 신청한 동아리입니다');
       return;
     }
     setShowApplicationDialog(true);
@@ -56,19 +60,17 @@ export function ClubDetailPage() {
 
   const submitApplication = async () => {
     if (introduction.trim().length < 10) {
-      toast.error('자기소개를 10자 이상 입력해주세요'); //
-      return; //
+      toast.error('자기소개를 10자 이상 입력해주세요');
+      return;
     }
     try {
-      // 💡 두 번째 인자로 { introduction } 오브젝트를 body에 실어 보냅니다.
-      await api.post(`/applications?clubId=${id}`, { introduction });
-
-      toast.success('동아리 신청이 완료되었습니다!'); //
-      setShowApplicationDialog(false); //
-      setIntroduction(''); //
-      window.location.reload(); //
+      const result = await api.post(`/applications?clubId=${id}`, { introduction });
+      toast.success('동아리 신청이 완료되었습니다!');
+      setShowApplicationDialog(false);
+      setIntroduction('');
+      setExistingApplication(result);
     } catch (e) {
-      toast.error('신청에 실패했습니다'); //
+      toast.error('신청에 실패했습니다');
     }
   };
 
@@ -79,6 +81,67 @@ export function ClubDetailPage() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const renderApplicationStatus = () => {
+    if (!existingApplication) {
+      if (!isRecruitmentActive()) {
+        return (
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-sm font-medium text-gray-900">모집 기간이 아닙니다</div>
+              <div className="text-xs text-gray-500 mt-1">
+                {formatDate(club.recruitStart)} ~ {formatDate(club.recruitEnd)}
+              </div>
+            </div>
+        );
+      }
+      return (
+          <Button className="w-full" onClick={handleApply}>
+            동아리 신청하기
+          </Button>
+      );
+    }
+
+    if (existingApplication.status === 'ACCEPTED') {
+      return (
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="text-sm font-medium text-green-900 mb-1">신청 상태</div>
+            <Badge variant="default" className="bg-green-600">✅ 승인됨 (회원)</Badge>
+          </div>
+      );
+    }
+
+    if (existingApplication.status === 'SUBMITTED') {
+      return (
+          <div className="space-y-3">
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="text-sm font-medium text-blue-900 mb-1">신청 상태</div>
+              <Badge variant="secondary">검토 중</Badge>
+            </div>
+            <Button variant="outline" className="w-full" onClick={() => navigate('/my-applications')}>
+              내 신청 보기
+            </Button>
+          </div>
+      );
+    }
+
+    if (existingApplication.status === 'REJECTED') {
+      return (
+          <div className="space-y-3">
+            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="text-sm font-medium text-red-900 mb-1">신청 상태</div>
+              <Badge variant="destructive">거절됨</Badge>
+            </div>
+            {isRecruitmentActive() && (
+                <Button className="w-full" onClick={handleApply}>
+                  다시 신청하기
+                </Button>
+            )}
+          </div>
+      );
+    }
+
+    return null;
   };
 
   if (loading) return <div className="text-center py-16">로딩 중...</div>;
@@ -161,30 +224,7 @@ export function ClubDetailPage() {
                 <CardTitle>신청하기</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {existingApplication ? (
-                    <div className="space-y-3">
-                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="text-sm font-medium text-blue-900 mb-1">신청 상태</div>
-                        <Badge
-                            variant={
-                              existingApplication.status === 'ACCEPTED' ? 'default' :
-                                  existingApplication.status === 'REJECTED' ? 'destructive' : 'secondary'
-                            }
-                        >
-                          {existingApplication.status === 'SUBMITTED' && '검토 중'}
-                          {existingApplication.status === 'ACCEPTED' && '승인됨'}
-                          {existingApplication.status === 'REJECTED' && '거절됨'}
-                        </Badge>
-                      </div>
-                      <Button variant="outline" className="w-full" onClick={() => navigate('/my-applications')}>
-                        내 신청 보기
-                      </Button>
-                    </div>
-                ) : (
-                    <Button className="w-full" onClick={handleApply}>
-                      동아리 신청하기
-                    </Button>
-                )}
+                {renderApplicationStatus()}
               </CardContent>
             </Card>
           </div>

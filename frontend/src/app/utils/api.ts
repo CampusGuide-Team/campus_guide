@@ -54,6 +54,6 @@ export const api = {
       headers: getHeaders(),
     });
     if (!res.ok) throw new Error('API 오류');
-    return res.json();
+    return res.status === 204 ? null : res.json();
   },
 };

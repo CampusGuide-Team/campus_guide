@@ -4,6 +4,7 @@ import com.campusguide.club.dto.ClubMemberResponseDto;
 import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
 import com.campusguide.club.service.ClubService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,5 +55,11 @@ public class ClubController {
     public List<ClubResponseDto> getMyClubs(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return clubService.getMyClubs(userId);
+    }
+
+    @DeleteMapping("/{clubId}/members/{memberId}")
+    public ResponseEntity<Void> removeMember(@PathVariable Long clubId, @PathVariable Long memberId) {
+        clubService.removeMember(clubId, memberId);
+        return ResponseEntity.ok().build();
     }
 }

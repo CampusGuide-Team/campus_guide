@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { ArrowLeft, Clock, CheckCircle, XCircle, User, Calendar, Settings } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, User, Settings } from 'lucide-react';
 import { api } from '../../utils/api';
 
 export function ClubMembersPage() {
@@ -16,78 +16,53 @@ export function ClubMembersPage() {
 
   const [club, setClub] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [successMessage, setSuccessMessage] = useState('');
-
-  // 신청 기간 상태
   const [applicationStartDate, setApplicationStartDate] = useState('');
   const [applicationEndDate, setApplicationEndDate] = useState('');
 
-  // 데이터 로드 함수
   const fetchClubData = () => {
     if (!clubId) return;
     const cleanClubId = clubId.trim();
 
-    // 1. 동아리 상세 정보 조회
     api.get(`/clubs/${cleanClubId}`)
         .then((data: any) => {
           if (data) setClub(data);
         })
-        .catch((err) => {
-          console.error('동아리 상세 조회 실패:', err);
-        });
+        .catch((err) => console.error('동아리 상세 조회 실패:', err));
 
-    // 2. 동아리별 신청서 목록 조회
     api.get(`/applications/club/${cleanClubId}`)
         .then((data: any) => {
-          // 응답 데이터가 배열 형태인지 안전하게 검증하여 바인딩
-          if (Array.isArray(data)) {
-            setApplications(data);
-          } else if (data && Array.isArray((data as any).data)) {
-            setApplications((data as any).data);
-          }
+          if (Array.isArray(data)) setApplications(data);
+          else if (data && Array.isArray((data as any).data)) setApplications((data as any).data);
         })
-        .catch((err) => {
-          console.error('신청서 목록 조회 실패:', err);
-        });
+        .catch((err) => console.error('신청서 목록 조회 실패:', err));
+
+    api.get(`/clubs/${cleanClubId}/members`)
+        .then((data: any) => {
+          if (Array.isArray(data)) setMembers(data);
+        })
+        .catch((err) => console.error('회원 목록 조회 실패:', err));
   };
 
   useEffect(() => {
     fetchClubData();
   }, [clubId]);
 
-  // 💡 백엔드 실제 JSON 필드명(recruitStart, recruitEnd)에 맞춰 바인딩 수정
   useEffect(() => {
     if (!club) return;
-
-    setApplicationStartDate(
-        club.recruitStart
-            ? new Date(club.recruitStart).toISOString().slice(0, 16)
-            : ''
-    );
-
-    setApplicationEndDate(
-        club.recruitEnd
-            ? new Date(club.recruitEnd).toISOString().slice(0, 16)
-            : ''
-    );
+    setApplicationStartDate(club.recruitStart ? new Date(club.recruitStart).toISOString().slice(0, 16) : '');
+    setApplicationEndDate(club.recruitEnd ? new Date(club.recruitEnd).toISOString().slice(0, 16) : '');
   }, [club]);
 
-  // 대기중인 신청자들 필터링
   const pendingApplications = useMemo(() => {
     return applications.filter(app => app.status === 'SUBMITTED' || app.status === 'PENDING');
   }, [applications]);
 
-  // 승인된 회원들 필터링
-  const acceptedMembers = useMemo(() => {
-    return applications.filter(app => app.status === 'ACCEPTED');
-  }, [applications]);
-
-  // 거절된 신청자들 필터링
   const rejectedApplications = useMemo(() => {
     return applications.filter(app => app.status === 'REJECTED');
   }, [applications]);
 
-  // 승인 처리
   const handleApprove = (applicationId: number) => {
     api.patch(`/applications/${applicationId}/accept`)
         .then(() => {
@@ -102,7 +77,6 @@ export function ClubMembersPage() {
         });
   };
 
-  // 거절 처리
   const handleReject = (applicationId: number) => {
     api.patch(`/applications/${applicationId}/reject`)
         .then(() => {
@@ -113,6 +87,21 @@ export function ClubMembersPage() {
         .catch((err) => {
           console.error(err);
           setSuccessMessage('거절 처리 중 오류가 발생했습니다.');
+          setTimeout(() => setSuccessMessage(''), 3000);
+        });
+  };
+
+  const handleRemoveMember = (memberId: number) => {
+    if (!confirm('정말 이 회원을 삭제하시겠습니까?')) return;
+    api.delete(`/clubs/${clubId}/members/${memberId}`)
+        .then(() => {
+          setSuccessMessage('회원이 삭제되었습니다.');
+          fetchClubData();
+          setTimeout(() => setSuccessMessage(''), 3000);
+        })
+        .catch((err) => {
+          console.error(err);
+          setSuccessMessage('삭제 처리 중 오류가 발생했습니다.');
           setTimeout(() => setSuccessMessage(''), 3000);
         });
   };
@@ -157,7 +146,7 @@ export function ClubMembersPage() {
                 <CardDescription>{club.description}</CardDescription>
                 <div className="flex gap-2 mt-3">
                   <Badge variant="secondary">{club.category}</Badge>
-                  <Badge variant="outline">회원 수: {club.memberCount || 0}명</Badge>
+                  <Badge variant="outline">회원 수: {members.length}명</Badge>
                 </div>
               </div>
             </div>
@@ -165,7 +154,7 @@ export function ClubMembersPage() {
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{acceptedMembers.length}</div>
+                <div className="text-2xl font-bold text-blue-600">{members.length}</div>
                 <div className="text-sm text-gray-600">현재 회원</div>
               </div>
               <div className="text-center p-4 bg-yellow-50 rounded-lg">
@@ -193,7 +182,7 @@ export function ClubMembersPage() {
                 </TabsTrigger>
                 <TabsTrigger value="members">
                   <User className="w-4 h-4 mr-2" />
-                  현재 회원 ({acceptedMembers.length})
+                  현재 회원 ({members.length})
                 </TabsTrigger>
                 <TabsTrigger value="settings">
                   <Settings className="w-4 h-4 mr-2" />
@@ -260,36 +249,32 @@ export function ClubMembersPage() {
               </TabsContent>
 
               <TabsContent value="members" className="space-y-4">
-                {acceptedMembers.length === 0 ? (
+                {members.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">현재 회원이 없습니다.</div>
                 ) : (
                     <div className="space-y-3">
-                      {acceptedMembers.map(app => (
-                          <Card key={app.id} className="border-l-4 border-l-green-400">
+                      {members.map(member => (
+                          <Card key={member.clubMemberId} className="border-l-4 border-l-green-400">
                             <CardContent className="pt-6">
                               <div className="space-y-3">
                                 <div className="flex items-start justify-between">
                                   <div>
-                                    <h3 className="text-lg font-semibold">{app.user?.name || '회원'}</h3>
+                                    <h3 className="text-lg font-semibold">{member.name || '회원'}</h3>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                      <Badge variant="outline">{app.user?.department || '-'}</Badge>
-                                      <Badge variant="secondary">{app.user?.studentId || '-'}</Badge>
+                                      <Badge variant="outline">{member.email || '-'}</Badge>
+                                      <Badge variant={member.clubRole === 'LEADER' ? 'default' : 'secondary'}>
+                                        {member.clubRole === 'LEADER' ? '임원' : '회원'}
+                                      </Badge>
                                     </div>
                                   </div>
-                                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                                    활동중
-                                  </Badge>
-                                </div>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                                  <div>
-                                    <span className="text-gray-500">전화번호</span>
-                                    <p className="font-medium">{app.user?.phone || '-'}</p>
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-500">이메일</span>
-                                    <p className="font-medium text-xs sm:text-sm break-all">{app.user?.email || '-'}</p>
-                                  </div>
+                                  <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-red-600 border-red-300 hover:bg-red-50"
+                                      onClick={() => handleRemoveMember(member.clubMemberId)}
+                                  >
+                                    삭제
+                                  </Button>
                                 </div>
                               </div>
                             </CardContent>

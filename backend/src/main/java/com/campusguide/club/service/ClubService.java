@@ -1,8 +1,10 @@
 package com.campusguide.club.service;
 
+import com.campusguide.application.repository.ApplicationRepository;
 import com.campusguide.club.dto.ClubMemberResponseDto;
 import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
+import com.campusguide.club.entity.ClubMember;
 import com.campusguide.club.enums.ClubRole;
 import com.campusguide.club.repository.ClubMemberRepository;
 import com.campusguide.club.repository.ClubRepository;
@@ -15,10 +17,14 @@ public class ClubService {
 
     private final ClubRepository clubRepository;
     private final ClubMemberRepository clubMemberRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public ClubService(ClubRepository clubRepository, ClubMemberRepository clubMemberRepository) {
+    public ClubService(ClubRepository clubRepository,
+                       ClubMemberRepository clubMemberRepository,
+                       ApplicationRepository applicationRepository) {
         this.clubRepository = clubRepository;
         this.clubMemberRepository = clubMemberRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     public List<ClubResponseDto> getAllClubs() {
@@ -56,5 +62,17 @@ public class ClubService {
                 .filter(m -> m.getRole() == ClubRole.LEADER)
                 .map(m -> ClubResponseDto.from(m.getClub()))
                 .toList();
+    }
+
+    public void removeMember(Long clubId, Long memberId) {
+        ClubMember member = clubMemberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        // Application도 같이 삭제
+        applicationRepository.findByUserIdAndClubId(
+                        member.getUser().getId(), clubId)
+                .ifPresent(applicationRepository::delete);
+
+        clubMemberRepository.delete(member);
     }
 }

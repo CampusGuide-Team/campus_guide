@@ -21,17 +21,19 @@ public class ApplicationController {
 
     // POST /applications
     @PostMapping
-    public Application apply(Authentication authentication,
-                             @RequestParam Long clubId){
-        Long userId = (Long)authentication.getPrincipal();
-        return applicationService.apply(userId, clubId);
+    public ApplicationResponseDto apply(Authentication authentication,
+                                        @RequestParam Long clubId) {
+        Long userId = (Long) authentication.getPrincipal();
+        return ApplicationResponseDto.from(applicationService.apply(userId, clubId));
     }
 
     // GET /applications
     @GetMapping
-    public List<Application> getMyApplications(Authentication authentication){
-        Long userId = (Long)authentication.getPrincipal();
-        return applicationService.getMyApplications(userId);
+    public List<ApplicationResponseDto> getMyApplications(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return applicationService.getMyApplications(userId).stream()
+                .map(ApplicationResponseDto::from)
+                .toList();
     }
 
     // 💡 복수형 주소 변경에 맞추어 내부 하위 경로 정비 (GET /applications/club/{clubId})

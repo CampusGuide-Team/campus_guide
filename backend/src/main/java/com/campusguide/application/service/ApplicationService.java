@@ -34,11 +34,16 @@ public class ApplicationService {
     }
 
     public Application apply(Long userId, Long clubId) {
-        User user = (User) userRepository.findById(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        User user = (User) userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다."));
 
-        Club club = clubRepository.findById(clubId).orElseThrow(()-> new RuntimeException("동아리를 찾을 수 없습니다."));
+        // 기존 신청이 있으면 재사용
+        Application application = applicationRepository
+                .findByUserIdAndClubId(userId, clubId)
+                .orElse(new Application());
 
-        Application application = new Application();
         application.setUser(user);
         application.setClub(club);
         application.setStatus(ApplicationStatus.SUBMITTED);
@@ -46,7 +51,6 @@ public class ApplicationService {
 
         return applicationRepository.save(application);
     }
-
     public List<Application> getMyApplications(Long userId){
         return applicationRepository.findByUserId(userId);
     }
@@ -77,17 +81,5 @@ public class ApplicationService {
         return applicationRepository.findByClubId(clubId);
     }
 
-    public Application apply(Long userId, Long clubId, String introduction) { // 💡 파라미터 추가
-        User user = (User) userRepository.findById(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다.")); //
-        Club club = clubRepository.findById(clubId).orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다.")); //
 
-        Application application = new Application(); //
-        application.setUser(user); //
-        application.setClub(club); //
-        application.setIntroduction(introduction); // 💡 엔티티에 자기소개 세팅!
-        application.setStatus(ApplicationStatus.SUBMITTED); //
-        application.setAppliedAt(LocalDateTime.now()); //
-
-        return applicationRepository.save(application); //
-    }
 }
