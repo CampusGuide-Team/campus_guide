@@ -14,7 +14,7 @@ export function PresidentDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/clubs').then((data: any) => {
+    api.get('/clubs/my').then((data: any) => {
       setClubs(data);
     }).catch(() => {
       console.error('동아리 조회 실패');

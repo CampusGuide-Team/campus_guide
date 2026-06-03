@@ -3,6 +3,8 @@ package com.campusguide.club.service;
 import com.campusguide.club.dto.ClubMemberResponseDto;
 import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
+import com.campusguide.club.enums.ClubRole;
+import com.campusguide.club.repository.ClubMemberRepository;
 import com.campusguide.club.repository.ClubRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +14,11 @@ import java.util.List;
 public class ClubService {
 
     private final ClubRepository clubRepository;
+    private final ClubMemberRepository clubMemberRepository;
 
-    public ClubService(ClubRepository clubRepository) {
+    public ClubService(ClubRepository clubRepository, ClubMemberRepository clubMemberRepository) {
         this.clubRepository = clubRepository;
+        this.clubMemberRepository = clubMemberRepository;
     }
 
     public List<ClubResponseDto> getAllClubs() {
@@ -38,14 +42,19 @@ public class ClubService {
     public ClubResponseDto createClub(Club club) {
         return ClubResponseDto.from(clubRepository.save(club));
     }
-    // Club
-    // -------
-    // ClubMember get
+
     public List<ClubMemberResponseDto> getClubMembers(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다."));
         return club.getClubMembers().stream()
                 .map(ClubMemberResponseDto::from)
+                .toList();
+    }
+
+    public List<ClubResponseDto> getMyClubs(Long userId) {
+        return clubMemberRepository.findByUserId(userId).stream()
+                .filter(m -> m.getRole() == ClubRole.LEADER)
+                .map(m -> ClubResponseDto.from(m.getClub()))
                 .toList();
     }
 }

@@ -4,6 +4,7 @@ import com.campusguide.club.dto.ClubMemberResponseDto;
 import com.campusguide.club.dto.ClubResponseDto;
 import com.campusguide.club.entity.Club;
 import com.campusguide.club.service.ClubService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,5 +48,11 @@ public class ClubController {
     @PostMapping
     public ClubResponseDto createClub(@RequestBody Club club) {
         return clubService.createClub(club);
+    }
+
+    @GetMapping("/my")
+    public List<ClubResponseDto> getMyClubs(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return clubService.getMyClubs(userId);
     }
 }
