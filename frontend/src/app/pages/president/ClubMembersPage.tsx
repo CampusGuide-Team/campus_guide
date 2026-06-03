@@ -25,23 +25,25 @@ export function ClubMembersPage() {
   // 데이터 로드 함수
   const fetchClubData = () => {
     if (!clubId) return;
-
     const cleanClubId = clubId.trim();
 
-    // 1. 동아리 상세 정보 조회 (GET /clubs/{id})
+    // 1. 동아리 상세 정보 조회
     api.get(`/clubs/${cleanClubId}`)
-        .then((data) => {
+        .then((data: any) => {
           if (data) setClub(data);
         })
         .catch((err) => {
           console.error('동아리 상세 조회 실패:', err);
         });
 
-    // 2. 동아리별 신청서 목록 조회 (백엔드 매핑 @RequestMapping("application") 기준 맞춤)
-    api.get(`/application/club/${cleanClubId}`)
-        .then((data) => {
+    // 2. 동아리별 신청서 목록 조회
+    api.get(`/applications/club/${cleanClubId}`)
+        .then((data: any) => {
+          // 응답 데이터가 배열 형태인지 안전하게 검증하여 바인딩
           if (Array.isArray(data)) {
             setApplications(data);
+          } else if (data && Array.isArray((data as any).data)) {
+            setApplications((data as any).data);
           }
         })
         .catch((err) => {
@@ -53,19 +55,19 @@ export function ClubMembersPage() {
     fetchClubData();
   }, [clubId]);
 
-  // 신청 기간 초기값 설정
+  // 💡 백엔드 실제 JSON 필드명(recruitStart, recruitEnd)에 맞춰 바인딩 수정
   useEffect(() => {
     if (!club) return;
 
     setApplicationStartDate(
-        club.applicationStartDate
-            ? new Date(club.applicationStartDate).toISOString().slice(0, 16)
+        club.recruitStart
+            ? new Date(club.recruitStart).toISOString().slice(0, 16)
             : ''
     );
 
     setApplicationEndDate(
-        club.applicationEndDate
-            ? new Date(club.applicationEndDate).toISOString().slice(0, 16)
+        club.recruitEnd
+            ? new Date(club.recruitEnd).toISOString().slice(0, 16)
             : ''
     );
   }, [club]);
@@ -85,9 +87,9 @@ export function ClubMembersPage() {
     return applications.filter(app => app.status === 'REJECTED');
   }, [applications]);
 
-  // 승인 처리 (PATCH /application/{id}/accept)
+  // 승인 처리
   const handleApprove = (applicationId: number) => {
-    api.patch(`/application/${applicationId}/accept`)
+    api.patch(`/applications/${applicationId}/accept`)
         .then(() => {
           setSuccessMessage('신청을 승인했습니다.');
           fetchClubData();
@@ -100,9 +102,9 @@ export function ClubMembersPage() {
         });
   };
 
-  // 거절 처리 (PATCH /application/{id}/reject)
+  // 거절 처리
   const handleReject = (applicationId: number) => {
-    api.patch(`/application/${applicationId}/reject`)
+    api.patch(`/applications/${applicationId}/reject`)
         .then(() => {
           setSuccessMessage('신청을 거절했습니다.');
           fetchClubData();
@@ -121,17 +123,7 @@ export function ClubMembersPage() {
       setTimeout(() => setSuccessMessage(''), 3000);
       return;
     }
-
-    const startDate = new Date(applicationStartDate);
-    const endDate = new Date(applicationEndDate);
-
-    if (startDate >= endDate) {
-      setSuccessMessage('종료일은 시작일보다 이후여야 합니다.');
-      setTimeout(() => setSuccessMessage(''), 3000);
-      return;
-    }
-
-    setSuccessMessage('신청 기간 수정 API는 아직 백엔드에 구현되지 않았습니다.');
+    setSuccessMessage('신청 기간 수정 API 구현 필요');
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
@@ -145,13 +137,11 @@ export function ClubMembersPage() {
 
   return (
       <div className="space-y-6">
-        {/* 뒤로가기 버튼 */}
         <Button variant="ghost" onClick={() => navigate('/president')}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           동아리 목록으로
         </Button>
 
-        {/* 성공 메시지 */}
         {successMessage && (
             <Alert className="bg-green-50 border-green-200">
               <CheckCircle className="w-4 h-4 text-green-600" />
@@ -159,7 +149,6 @@ export function ClubMembersPage() {
             </Alert>
         )}
 
-        {/* 동아리 정보 */}
         <Card>
           <CardHeader>
             <div className="flex items-start justify-between">
@@ -168,7 +157,7 @@ export function ClubMembersPage() {
                 <CardDescription>{club.description}</CardDescription>
                 <div className="flex gap-2 mt-3">
                   <Badge variant="secondary">{club.category}</Badge>
-                  <Badge variant="outline">{club.activityLocation}</Badge>
+                  <Badge variant="outline">회원 수: {club.memberCount || 0}명</Badge>
                 </div>
               </div>
             </div>
@@ -191,11 +180,9 @@ export function ClubMembersPage() {
           </CardContent>
         </Card>
 
-        {/* 회원 및 신청자 명부 */}
         <Card>
           <CardHeader>
             <CardTitle>회원 및 신청자 명부</CardTitle>
-            <CardDescription>동아리 회원과 신청자를 관리하세요</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="pending">
@@ -258,10 +245,10 @@ export function ClubMembersPage() {
 
                                 <div className="flex gap-2 pt-2">
                                   <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleApprove(app.id)}>
-                                    <CheckCircle className="w-4 h-4 mr-2" /> 승인
+                                    승인
                                   </Button>
                                   <Button variant="outline" className="flex-1 text-red-600 border-red-300 hover:bg-red-50" onClick={() => handleReject(app.id)}>
-                                    <XCircle className="w-4 h-4 mr-2" /> 거절
+                                    거절
                                   </Button>
                                 </div>
                               </div>
@@ -290,7 +277,7 @@ export function ClubMembersPage() {
                                     </div>
                                   </div>
                                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                                    <CheckCircle className="w-3 h-3 mr-1" /> 활동중
+                                    활동중
                                   </Badge>
                                 </div>
 
@@ -302,12 +289,6 @@ export function ClubMembersPage() {
                                   <div>
                                     <span className="text-gray-500">이메일</span>
                                     <p className="font-medium text-xs sm:text-sm break-all">{app.user?.email || '-'}</p>
-                                  </div>
-                                  <div className="sm:col-span-2">
-                                    <span className="text-gray-500">가입일</span>
-                                    <p className="font-medium">
-                                      {app.reviewedAt ? new Date(app.reviewedAt).toLocaleDateString('ko-KR') : '-'}
-                                    </p>
                                   </div>
                                 </div>
                               </div>
@@ -321,27 +302,24 @@ export function ClubMembersPage() {
               <TabsContent value="settings">
                 <div className="space-y-6 p-4">
                   <div className="space-y-2">
-                    <Label htmlFor="startDate" className="text-sm font-medium">신청 시작일</Label>
-                    <Input id="startDate" type="datetime-local" value={applicationStartDate} onChange={(e) => setApplicationStartDate(e.target.value)} className="w-full" />
+                    <Label htmlFor="startDate">신청 시작일</Label>
+                    <Input id="startDate" type="datetime-local" value={applicationStartDate} onChange={(e) => setApplicationStartDate(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="endDate" className="text-sm font-medium">신청 종료일</Label>
-                    <Input id="endDate" type="datetime-local" value={applicationEndDate} onChange={(e) => setApplicationEndDate(e.target.value)} className="w-full" />
+                    <Label htmlFor="endDate">신청 종료일</Label>
+                    <Input id="endDate" type="datetime-local" value={applicationEndDate} onChange={(e) => setApplicationEndDate(e.target.value)} />
                   </div>
 
-                  {club.applicationStartDate && club.applicationEndDate && (
+                  {club.recruitStart && club.recruitEnd && (
                       <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="text-sm font-medium text-blue-900 mb-2">현재 설정된 신청 기간</div>
                         <div className="text-xs text-blue-700">
-                          {new Date(club.applicationStartDate).toLocaleString('ko-KR')} ~<br />
-                          {new Date(club.applicationEndDate).toLocaleString('ko-KR')}
+                          {new Date(club.recruitStart).toLocaleString('ko-KR')} ~<br />
+                          {new Date(club.recruitEnd).toLocaleString('ko-KR')}
                         </div>
                       </div>
                   )}
-
-                  <Button className="w-full" onClick={handleUpdateApplicationPeriod}>
-                    <Calendar className="w-4 h-4 mr-2" /> 신청 기간 업데이트
-                  </Button>
+                  <Button className="w-full" onClick={handleUpdateApplicationPeriod}>신청 기간 업데이트</Button>
                 </div>
               </TabsContent>
             </Tabs>

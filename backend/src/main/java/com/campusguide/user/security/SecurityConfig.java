@@ -37,7 +37,8 @@ public class SecurityConfig {
                                 "/buildings/**",
                                 "/users/dev-login", // 개발자 로그인
                                 "/clubs",// 동아리
-                                "/clubs/**"
+                                "/clubs/**",
+                                "/applications/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()

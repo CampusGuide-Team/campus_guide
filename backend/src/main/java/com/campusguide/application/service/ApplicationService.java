@@ -4,6 +4,9 @@ import com.campusguide.application.entity.Application;
 import com.campusguide.application.enums.ApplicationStatus;
 import com.campusguide.application.repository.ApplicationRepository;
 import com.campusguide.club.entity.Club;
+import com.campusguide.club.entity.ClubMember;
+import com.campusguide.club.enums.ClubRole;
+import com.campusguide.club.repository.ClubMemberRepository;
 import com.campusguide.club.repository.ClubRepository;
 import com.campusguide.user.entity.User;
 import com.campusguide.user.repository.UserRepository;
@@ -18,13 +21,16 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
+    private final ClubMemberRepository clubMemberRepository;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               UserRepository userRepository,
-                              ClubRepository clubRepository) {
+                              ClubRepository clubRepository,
+                              ClubMemberRepository clubMemberRepository) {
         this.applicationRepository = applicationRepository;
         this.userRepository = userRepository;
         this.clubRepository = clubRepository;
+        this.clubMemberRepository = clubMemberRepository;
     }
 
     public Application apply(Long userId, Long clubId) {
@@ -45,10 +51,20 @@ public class ApplicationService {
         return applicationRepository.findByUserId(userId);
     }
 
-    public Application accept(Long applicationId){
-        Application application = applicationRepository.findById(applicationId).orElseThrow(()->new RuntimeException("신청을 찾을 수 없습니다."));
+    public Application accept(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("신청을 찾을 수 없습니다."));
         application.setStatus(ApplicationStatus.ACCEPTED);
-        return applicationRepository.save(application);
+        applicationRepository.save(application);
+
+        // ClubMember에 추가
+        ClubMember clubMember = new ClubMember();
+        clubMember.setClub(application.getClub());
+        clubMember.setUser(application.getUser());
+        clubMember.setRole(ClubRole.MEMBER);
+        clubMemberRepository.save(clubMember);
+
+        return application;
     }
 
     public Application reject(Long applicationId){

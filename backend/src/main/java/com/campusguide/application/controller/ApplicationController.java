@@ -1,5 +1,6 @@
 package com.campusguide.application.controller;
 
+import com.campusguide.application.dto.ApplicationResponseDto;
 import com.campusguide.application.entity.Application;
 import com.campusguide.application.service.ApplicationService;
 import org.springframework.security.core.Authentication;
@@ -35,21 +36,22 @@ public class ApplicationController {
 
     // 💡 복수형 주소 변경에 맞추어 내부 하위 경로 정비 (GET /applications/club/{clubId})
     @GetMapping("/club/{clubId}")
-    public List<Application> getClubApplications(
-            @PathVariable Long clubId
-    ) {
-        return applicationService.getClubApplications(clubId);
+    public List<ApplicationResponseDto> getClubApplications(@PathVariable Long clubId) {
+        return applicationService.getClubApplications(clubId).stream()
+                .map(ApplicationResponseDto::from)
+                .toList();
     }
 
     // PATCH /applications/{id}/accept
     @PatchMapping("/{id}/accept")
-    public Application accept(@PathVariable Long id){
-        return applicationService.accept(id);
+    public ApplicationResponseDto accept(@PathVariable Long id) {
+        return ApplicationResponseDto.from(applicationService.accept(id));
     }
 
-    // PATCH /applications/{id}/reject
     @PatchMapping("/{id}/reject")
-    public Application reject(@PathVariable Long id){
-        return applicationService.reject(id);
+    public ApplicationResponseDto reject(@PathVariable Long id) {
+        return ApplicationResponseDto.from(applicationService.reject(id));
     }
+
+
 }
