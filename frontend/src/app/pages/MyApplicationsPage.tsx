@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
-import { FileText, Calendar, MessageSquare } from 'lucide-react';
+import { FileText, Calendar } from 'lucide-react';
 import { api } from '../utils/api';
 
 export function MyApplicationsPage() {
@@ -76,7 +76,8 @@ export function MyApplicationsPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2">
-                            {application.clubName}
+                            {/* 💡 백엔드 엔티티 매핑에 맞춰 club?.name 으로 수정 */}
+                            {application.club?.name || '정보 없음'}
                           </CardTitle>
                         </div>
                         {getStatusBadge(application.status)}
@@ -92,7 +93,8 @@ export function MyApplicationsPage() {
                       </div>
 
                       <div className="pt-2">
-                        <Link to={`/clubs/${application.clubId}`}>
+                        {/* 💡 백엔드 엔티티 매핑에 맞춰 club?.id 로 수정 */}
+                        <Link to={`/clubs/${application.club?.id}`}>
                           <Button variant="outline" size="sm">동아리 상세 보기</Button>
                         </Link>
                       </div>

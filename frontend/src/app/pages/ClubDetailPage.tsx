@@ -56,17 +56,19 @@ export function ClubDetailPage() {
 
   const submitApplication = async () => {
     if (introduction.trim().length < 10) {
-      toast.error('자기소개를 10자 이상 입력해주세요');
-      return;
+      toast.error('자기소개를 10자 이상 입력해주세요'); //
+      return; //
     }
     try {
-      await api.post(`/applications?clubId=${id}`);
-      toast.success('동아리 신청이 완료되었습니다!');
-      setShowApplicationDialog(false);
-      setIntroduction('');
-      window.location.reload();
+      // 💡 두 번째 인자로 { introduction } 오브젝트를 body에 실어 보냅니다.
+      await api.post(`/applications?clubId=${id}`, { introduction });
+
+      toast.success('동아리 신청이 완료되었습니다!'); //
+      setShowApplicationDialog(false); //
+      setIntroduction(''); //
+      window.location.reload(); //
     } catch (e) {
-      toast.error('신청에 실패했습니다');
+      toast.error('신청에 실패했습니다'); //
     }
   };
 

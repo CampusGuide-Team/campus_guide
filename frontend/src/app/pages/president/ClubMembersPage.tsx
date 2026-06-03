@@ -37,7 +37,7 @@ export function ClubMembersPage() {
           console.error('동아리 상세 조회 실패:', err);
         });
 
-    // 2. 동아리별 신청서 목록 조회 (GET /application/club/{clubId})
+    // 2. 동아리별 신청서 목록 조회 (백엔드 매핑 @RequestMapping("application") 기준 맞춤)
     api.get(`/application/club/${cleanClubId}`)
         .then((data) => {
           if (Array.isArray(data)) {

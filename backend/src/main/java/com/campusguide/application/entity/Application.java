@@ -3,6 +3,7 @@ package com.campusguide.application.entity;
 import com.campusguide.application.enums.ApplicationStatus;
 import com.campusguide.club.entity.Club;
 import com.campusguide.user.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +23,16 @@ public class Application {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"applications"})
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "club_id")
+    @JsonIgnoreProperties({"applications"})
     private Club club;
+
+    @Column(columnDefinition = "TEXT")
+    private String introduction;
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;

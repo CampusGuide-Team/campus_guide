@@ -60,4 +60,18 @@ public class ApplicationService {
     public List<Application> getClubApplications(Long clubId) {
         return applicationRepository.findByClubId(clubId);
     }
+
+    public Application apply(Long userId, Long clubId, String introduction) { // 💡 파라미터 추가
+        User user = (User) userRepository.findById(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다.")); //
+        Club club = clubRepository.findById(clubId).orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다.")); //
+
+        Application application = new Application(); //
+        application.setUser(user); //
+        application.setClub(club); //
+        application.setIntroduction(introduction); // 💡 엔티티에 자기소개 세팅!
+        application.setStatus(ApplicationStatus.SUBMITTED); //
+        application.setAppliedAt(LocalDateTime.now()); //
+
+        return applicationRepository.save(application); //
+    }
 }
