@@ -226,11 +226,15 @@ public class ChatbotService {
 
             if (meal.isPresent()) {
                 Meal m = meal.get();
+                String topFood = m.getTopFood();
+
+                if (topFood == null || topFood.isBlank() || !topFood.contains("까스")) {
+                    return new ChatResponse(targetDate + " 식단 정보가 없습니다.", null, null, null, null, null, null, null);
+                }
+
                 StringBuilder sb = new StringBuilder();
                 sb.append(targetDate).append(" 학생식당 메뉴입니다.\n\n");
-                if (m.getTopFood() != null && !m.getTopFood().isBlank()) {
-                    sb.append("🍱 메뉴\n").append(m.getTopFood().replace("\r\n", "\n"));
-                }
+                sb.append("🍱 메뉴\n").append(topFood.replace("\r\n", "\n"));
                 return new ChatResponse(sb.toString(), null, null, null, null, null, null, null);
             } else {
                 return new ChatResponse(targetDate + " 식단 정보가 없습니다.", null, null, null, null, null, null, null);
