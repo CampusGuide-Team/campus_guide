@@ -7,8 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
 import { ArrowLeft, Clock, CheckCircle, User, Settings } from 'lucide-react';
 import { api } from '../../utils/api';
+import { toast } from 'sonner';
 
 export function ClubMembersPage() {
   const { clubId } = useParams<{ clubId: string }>();
@@ -20,6 +22,8 @@ export function ClubMembersPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [applicationStartDate, setApplicationStartDate] = useState('');
   const [applicationEndDate, setApplicationEndDate] = useState('');
+  const [description, setDescription] = useState('');
+  const [thumbnailUrl, setThumbnailUrl] = useState('');
 
   const fetchClubData = () => {
     if (!clubId) return;
@@ -53,6 +57,8 @@ export function ClubMembersPage() {
     if (!club) return;
     setApplicationStartDate(club.recruitStart ? new Date(club.recruitStart).toISOString().slice(0, 16) : '');
     setApplicationEndDate(club.recruitEnd ? new Date(club.recruitEnd).toISOString().slice(0, 16) : '');
+    setDescription(club.description || '');
+    setThumbnailUrl(club.thumbnailUrl || '');
   }, [club]);
 
   const pendingApplications = useMemo(() => {
@@ -106,14 +112,34 @@ export function ClubMembersPage() {
         });
   };
 
-  const handleUpdateApplicationPeriod = () => {
+  const handleUpdateApplicationPeriod = async () => {
     if (!applicationStartDate || !applicationEndDate) {
-      setSuccessMessage('시작일과 종료일을 모두 입력해주세요.');
-      setTimeout(() => setSuccessMessage(''), 3000);
+      toast.error('시작일과 종료일을 모두 입력해주세요.');
       return;
     }
-    setSuccessMessage('신청 기간 수정 API 구현 필요');
-    setTimeout(() => setSuccessMessage(''), 3000);
+    try {
+      await api.patch(`/clubs/${clubId}`, {
+        recruitStart: applicationStartDate.slice(0, 10),
+        recruitEnd: applicationEndDate.slice(0, 10),
+      });
+      toast.success('신청 기간이 업데이트되었습니다.');
+      fetchClubData();
+    } catch (e) {
+      toast.error('업데이트에 실패했습니다.');
+    }
+  };
+
+  const handleUpdateInfo = async () => {
+    try {
+      await api.patch(`/clubs/${clubId}`, {
+        description,
+        thumbnailUrl,
+      });
+      toast.success('동아리 정보가 수정되었습니다.');
+      fetchClubData();
+    } catch (e) {
+      toast.error('수정에 실패했습니다.');
+    }
   };
 
   if (!club) {
@@ -186,7 +212,7 @@ export function ClubMembersPage() {
                 </TabsTrigger>
                 <TabsTrigger value="settings">
                   <Settings className="w-4 h-4 mr-2" />
-                  신청 기간 설정
+                  설정
                 </TabsTrigger>
               </TabsList>
 
@@ -285,26 +311,62 @@ export function ClubMembersPage() {
               </TabsContent>
 
               <TabsContent value="settings">
-                <div className="space-y-6 p-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">신청 시작일</Label>
-                    <Input id="startDate" type="datetime-local" value={applicationStartDate} onChange={(e) => setApplicationStartDate(e.target.value)} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">신청 종료일</Label>
-                    <Input id="endDate" type="datetime-local" value={applicationEndDate} onChange={(e) => setApplicationEndDate(e.target.value)} />
+                <div className="space-y-8 p-4">
+
+                  {/* 동아리 정보 수정 */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">동아리 정보 수정</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">동아리 소개</Label>
+                      <Textarea
+                          id="description"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          rows={6}
+                          placeholder="동아리 소개를 입력하세요. URL을 입력하면 자동으로 링크가 됩니다."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="thumbnailUrl">썸네일 URL</Label>
+                      <Input
+                          id="thumbnailUrl"
+                          value={thumbnailUrl}
+                          onChange={(e) => setThumbnailUrl(e.target.value)}
+                          placeholder="https://..."
+                      />
+                    </div>
+                    <Button className="w-full" onClick={handleUpdateInfo}>
+                      동아리 정보 저장
+                    </Button>
                   </div>
 
-                  {club.recruitStart && club.recruitEnd && (
-                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="text-sm font-medium text-blue-900 mb-2">현재 설정된 신청 기간</div>
-                        <div className="text-xs text-blue-700">
-                          {new Date(club.recruitStart).toLocaleString('ko-KR')} ~<br />
-                          {new Date(club.recruitEnd).toLocaleString('ko-KR')}
+                  <hr />
+
+                  {/* 신청 기간 설정 */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">신청 기간 설정</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="startDate">신청 시작일</Label>
+                      <Input id="startDate" type="datetime-local" value={applicationStartDate} onChange={(e) => setApplicationStartDate(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="endDate">신청 종료일</Label>
+                      <Input id="endDate" type="datetime-local" value={applicationEndDate} onChange={(e) => setApplicationEndDate(e.target.value)} />
+                    </div>
+                    {club.recruitStart && club.recruitEnd && (
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <div className="text-sm font-medium text-blue-900 mb-2">현재 설정된 신청 기간</div>
+                          <div className="text-xs text-blue-700">
+                            {new Date(club.recruitStart).toLocaleString('ko-KR')} ~<br />
+                            {new Date(club.recruitEnd).toLocaleString('ko-KR')}
+                          </div>
                         </div>
-                      </div>
-                  )}
-                  <Button className="w-full" onClick={handleUpdateApplicationPeriod}>신청 기간 업데이트</Button>
+                    )}
+                    <Button className="w-full" onClick={handleUpdateApplicationPeriod}>
+                      신청 기간 업데이트
+                    </Button>
+                  </div>
+
                 </div>
               </TabsContent>
             </Tabs>

@@ -20,6 +20,7 @@ export function ClubDetailPage() {
   const [existingApplication, setExistingApplication] = useState<any>(null);
   const [isMember, setIsMember] = useState(false);
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,10 +32,11 @@ export function ClubDetailPage() {
           const found = apps.find((a: any) => a.clubId === Number(id));
           setExistingApplication(found || null);
 
+          // 내가 이미 회원인지 확인
           const members = await api.get(`/clubs/${id}/members`);
           const userId = JSON.parse(localStorage.getItem('user_info') || '{}').id;
-          const foundMember = members.find((m: any) => m.userId === Number(userId));
-          setIsMember(!!foundMember);
+          const found2 = members.find((m: any) => m.userId === Number(userId));
+          setIsMember(!!found2);
         } catch {
           // 비로그인 상태
         }
@@ -89,17 +91,19 @@ export function ClubDetailPage() {
     });
   };
 
-  const renderApplicationStatus = () => {
-    // 이미 회원인 경우 (LEADER 포함)
-    if (isMember) {
-      return (
-          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-            <div className="text-sm font-medium text-green-900 mb-1">신청 상태</div>
-            <Badge variant="default" className="bg-green-600">✅ 이미 회원입니다</Badge>
-          </div>
-      );
-    }
+  const renderDescription = (text: string) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, index) => {
+      if (/https?:\/\/[^\s]+/.test(part)) {
+        return <a key={index} href={part} target="_blank" rel="noopener noreferrer" className="text-pink-500 underline hover:text-pink-600 break-all">{part.includes('instagram') ? '📸 인스타그램 바로가기' : part}</a>;
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
 
+  const renderApplicationStatus = () => {
     if (!existingApplication) {
       if (!isRecruitmentActive()) {
         return (
@@ -204,7 +208,7 @@ export function ClubDetailPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {club.description}
+                  {renderDescription(club.description)}
                 </p>
               </CardContent>
             </Card>

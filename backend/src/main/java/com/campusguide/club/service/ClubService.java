@@ -75,4 +75,23 @@ public class ClubService {
 
         clubMemberRepository.delete(member);
     }
+
+    public ClubResponseDto updateClub(Long id, Club clubData, Long userId) {
+        Club club = clubRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("동아리를 찾을 수 없습니다."));
+
+        // 임원인지 확인
+        boolean isLeader = clubMemberRepository.findByUserId(userId).stream()
+                .anyMatch(m -> m.getClub().getId().equals(id) && m.getRole() == ClubRole.LEADER);
+
+        if (!isLeader) throw new RuntimeException("권한이 없습니다.");
+
+        if (clubData.getName() != null) club.setName(clubData.getName());
+        if (clubData.getDescription() != null) club.setDescription(clubData.getDescription());
+        if (clubData.getThumbnailUrl() != null) club.setThumbnailUrl(clubData.getThumbnailUrl());
+        if (clubData.getRecruitStart() != null) club.setRecruitStart(clubData.getRecruitStart());
+        if (clubData.getRecruitEnd() != null) club.setRecruitEnd(clubData.getRecruitEnd());
+
+        return ClubResponseDto.from(clubRepository.save(club));
+    }
 }

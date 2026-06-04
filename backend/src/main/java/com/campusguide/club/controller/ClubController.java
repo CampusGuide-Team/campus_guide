@@ -62,4 +62,12 @@ public class ClubController {
         clubService.removeMember(clubId, memberId);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{id}")
+    public ClubResponseDto updateClub(@PathVariable Long id,
+                                      @RequestBody Club club,
+                                      Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return clubService.updateClub(id, club, userId);
+    }
 }
