@@ -219,7 +219,7 @@ public class ChatbotService {
         // 5순위 : 식단 질문 처리
         if (message.contains("식단") || message.contains("학식") ||
                 message.contains("메뉴") || message.contains("밥") ||
-                message.contains("점심") || message.contains("학생식당")) {
+                message.contains("점심")) {
 
             LocalDate targetDate = parseDateFromMessage(message);
             Optional<Meal> meal = mealRepository.findByMealDate(targetDate);
