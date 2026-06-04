@@ -3,6 +3,8 @@ package com.campusguide.chatbot.service;
 import com.campusguide.building.entity.BuildingPlace;
 import com.campusguide.building.repository.BuildingPlaceRepository;
 import com.campusguide.chatbot.dto.ChatResponse;
+import com.campusguide.meal.entity.Meal;
+import com.campusguide.meal.repository.MealRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -18,11 +22,14 @@ import java.util.*;
 public class ChatbotService {
 
     private final BuildingPlaceRepository buildingPlaceRepository;
+    private final MealRepository mealRepository;
 
     @Value("${openai.api.key}")
     private String apiKey;
 
     public ChatResponse ask(String message) {
+
+
 
         // 카테고리/종류별 시설 조회
         // 카테고리/종류별 시설 조회
@@ -209,6 +216,27 @@ public class ChatbotService {
             places = buildingPlaceRepository
                     .findByCategory(keyword);
         }
+        // 5순위 : 식단 질문 처리
+        if (message.contains("식단") || message.contains("학식") ||
+                message.contains("메뉴") || message.contains("밥") ||
+                message.contains("점심") || message.contains("학생식당")) {
+
+            LocalDate targetDate = parseDateFromMessage(message);
+            Optional<Meal> meal = mealRepository.findByMealDate(targetDate);
+
+            if (meal.isPresent()) {
+                Meal m = meal.get();
+                StringBuilder sb = new StringBuilder();
+                sb.append(targetDate).append(" 학생식당 메뉴입니다.\n\n");
+                if (m.getTopFood() != null && !m.getTopFood().isBlank()) {
+                    sb.append("🍱 메뉴\n").append(m.getTopFood().replace("\r\n", "\n"));
+                }
+                return new ChatResponse(sb.toString(), null, null, null, null, null, null, null);
+            } else {
+                return new ChatResponse(targetDate + " 식단 정보가 없습니다.", null, null, null, null, null, null, null);
+            }
+        }
+
 
         // 검색 실패 시 GPT에게 DB 시설 목록 기반으로 한 번 더 추론 요청
         if (places.isEmpty()) {
@@ -376,6 +404,21 @@ public class ChatbotService {
                 .replace("?", "")
                 .replace("어디있어", "")
                 .trim();
+    }
+    // 날짜 파싱
+    private LocalDate parseDateFromMessage(String message) {
+        LocalDate today = LocalDate.now();
+        if (message.contains("오늘")) return today;
+        if (message.contains("내일")) return today.plusDays(1);
+        if (message.contains("모레")) return today.plusDays(2);
+        if (message.contains("어제")) return today.minusDays(1);
+        if (message.contains("그제") || message.contains("그저께")) return today.minusDays(2);
+        if (message.contains("월요일")) return today.with(DayOfWeek.MONDAY);
+        if (message.contains("화요일")) return today.with(DayOfWeek.TUESDAY);
+        if (message.contains("수요일")) return today.with(DayOfWeek.WEDNESDAY);
+        if (message.contains("목요일")) return today.with(DayOfWeek.THURSDAY);
+        if (message.contains("금요일")) return today.with(DayOfWeek.FRIDAY);
+        return today;
     }
 
     // 카테고리 키워드 추출
