@@ -18,6 +18,7 @@ export function ClubDetailPage() {
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   const [introduction, setIntroduction] = useState('');
   const [existingApplication, setExistingApplication] = useState<any>(null);
+  const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +30,11 @@ export function ClubDetailPage() {
           const apps = await api.get('/applications');
           const found = apps.find((a: any) => a.clubId === Number(id));
           setExistingApplication(found || null);
+
+          const members = await api.get(`/clubs/${id}/members`);
+          const userId = JSON.parse(localStorage.getItem('user_info') || '{}').id;
+          const foundMember = members.find((m: any) => m.userId === Number(userId));
+          setIsMember(!!foundMember);
         } catch {
           // 비로그인 상태
         }
@@ -84,6 +90,16 @@ export function ClubDetailPage() {
   };
 
   const renderApplicationStatus = () => {
+    // 이미 회원인 경우 (LEADER 포함)
+    if (isMember) {
+      return (
+          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+            <div className="text-sm font-medium text-green-900 mb-1">신청 상태</div>
+            <Badge variant="default" className="bg-green-600">✅ 이미 회원입니다</Badge>
+          </div>
+      );
+    }
+
     if (!existingApplication) {
       if (!isRecruitmentActive()) {
         return (
