@@ -2,6 +2,7 @@ package com.campusguide.user.security;
 
 import com.campusguide.user.oauth.CustomOAuth2UserService;
 import com.campusguide.user.oauth.OAuth2SuccessHandler;
+import lombok.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -81,5 +82,5 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
     return source;
-}
+    }
 }
