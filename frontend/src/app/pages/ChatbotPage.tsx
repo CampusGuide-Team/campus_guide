@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { Send, Bot, User } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { KakaoMap } from '../components/KakaoMap';
+import { api } from '../utils/api';
 
 type ChatApiResponse = {
     answer: string;
@@ -77,7 +78,7 @@ export function ChatbotPage() {
                 throw new Error('챗봇 API 요청 실패');
             }
 
-            const data: ChatApiResponse = await response.json();
+            const data: ChatApiResponse = await api.post('/chat', { message: userInput });
 
             const botResponse: ChatMessage = {
                 id: `msg-${Date.now()}-bot`,
@@ -90,7 +91,6 @@ export function ChatbotPage() {
             };
 
             setMessages((prev) => [...prev, botResponse]);
-
             console.log('챗봇 응답:', data);
         } catch (error) {
             console.error(error);
