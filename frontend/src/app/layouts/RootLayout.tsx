@@ -71,9 +71,7 @@ export function RootLayout() {
         <div className="mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">KU</span>
-              </div>
+              <img src="/icon-192.png" alt="KU Navigator" className="w-9 h-9 rounded-lg" />
               <div className="hidden sm:block">
                 <h1 className="font-bold text-lg">KU Navigator</h1>
                 <p className="text-xs text-gray-500">캠퍼스 동아리 탐색</p>
