@@ -23,7 +23,8 @@ export function ChatbotPage() {
         {
             id: 'initial',
             role: 'assistant',
-            content: '안녕하세요! KU Navigator 챗봇입니다. 학교 정보, 건물 위치, 동아리 정보 등 무엇이든 물어보세요!',
+            content:
+                '안녕하세요! KU Navigator 챗봇입니다. 학교 정보, 건물 위치, 동아리 정보 등 무엇이든 물어보세요!',
             timestamp: new Date().toISOString(),
         },
     ]);
@@ -123,37 +124,79 @@ export function ChatbotPage() {
                     {messages.map((message) => (
                         <div
                             key={message.id}
-                            className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                            className={`flex gap-3 ${
+                                message.role === 'user'
+                                    ? 'flex-row-reverse'
+                                    : 'flex-row'
+                            }`}
                         >
                             <div
                                 className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                    message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                                    message.role === 'user'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-gray-600'
                                 }`}
                             >
-                                {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                                {message.role === 'user' ? (
+                                    <User className="w-4 h-4" />
+                                ) : (
+                                    <Bot className="w-4 h-4" />
+                                )}
                             </div>
 
                             <div
                                 className={`max-w-[70%] rounded-lg p-3 ${
-                                    message.role === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+                                    message.role === 'user'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-900'
                                 }`}
                             >
-                                <p className="text-sm whitespace-pre-line">{message.content}</p>
+                                <p className="text-sm whitespace-pre-line">
+                                    {message.content}
+                                </p>
 
                                 {message.role === 'assistant' &&
                                     message.latitude != null &&
                                     message.longitude != null &&
                                     message.placeName && (
-                                        <div className="mt-3">
+                                        <div className="mt-3 space-y-2">
                                             <KakaoMap
                                                 latitude={message.latitude}
                                                 longitude={message.longitude}
                                                 name={message.placeName}
                                             />
+
+                                            <div className="rounded-md bg-white border p-2 text-xs text-gray-600">
+                                                <p className="font-medium text-gray-800 mb-1">
+                                                    {message.placeName}
+                                                </p>
+                                                <p>위도: {message.latitude}</p>
+                                                <p>경도: {message.longitude}</p>
+                                            </div>
+
+                                            <Button
+                                                className="w-full"
+                                                onClick={() =>
+                                                    window.open(
+                                                        `https://map.kakao.com/link/to/${encodeURIComponent(
+                                                            message.placeName!
+                                                        )},${message.latitude},${message.longitude}`,
+                                                        '_blank'
+                                                    )
+                                                }
+                                            >
+                                                카카오맵 길찾기
+                                            </Button>
                                         </div>
                                     )}
 
-                                <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
+                                <p
+                                    className={`text-xs mt-1 ${
+                                        message.role === 'user'
+                                            ? 'text-blue-200'
+                                            : 'text-gray-500'
+                                    }`}
+                                >
                                     {new Date(message.timestamp).toLocaleTimeString('ko-KR', {
                                         hour: '2-digit',
                                         minute: '2-digit',
@@ -162,13 +205,19 @@ export function ChatbotPage() {
                             </div>
                         </div>
                     ))}
+
                     <div ref={messagesEndRef} />
                 </CardContent>
 
                 <div className="border-t p-4">
                     <div className="flex flex-wrap gap-2 mb-3">
                         {recommendQuestions.map((question) => (
-                            <Button key={question} variant="outline" size="sm" onClick={() => sendMessage(question)}>
+                            <Button
+                                key={question}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => sendMessage(question)}
+                            >
                                 {question}
                             </Button>
                         ))}
@@ -182,6 +231,7 @@ export function ChatbotPage() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
+
                         <Button onClick={handleSend} disabled={!input.trim()}>
                             <Send className="w-4 h-4" />
                         </Button>
