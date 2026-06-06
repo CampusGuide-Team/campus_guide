@@ -13,6 +13,7 @@ export function LoginSuccessPage() {
 
       api.get('/users/me/profile').then((user: any) => {
         localStorage.setItem('user_info', JSON.stringify(user));
+        window.dispatchEvent(new Event('storage'));
         if (!user.studentId || !user.phone || !user.department) {
           navigate('/register');
         } else {
