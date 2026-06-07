@@ -6,11 +6,17 @@ import { Badge } from '../components/ui/badge';
 import { Search, X } from 'lucide-react';
 import { api } from '../utils/api';
 
-const ALL_TAGS = ['개발', '운동', '음악', '문화', '학술', '프로젝트', '친선경기', '공연', '취미', '영화', '토론', '로봇', 'AI', '사진', '예술', '전시회', '축구', '농구', '댄스', 'K-POP'];
+const CATEGORIES = [
+  { value: 'ACADEMIC', label: '학술' },
+  { value: 'SPORTS', label: '운동' },
+  { value: 'CULTURE', label: '문화' },
+  { value: 'IT', label: 'IT' },
+  { value: 'VOLUNTEER', label: '봉사' },
+];
 
 export function ClubsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [clubs, setClubs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,21 +41,14 @@ export function ClubsPage() {
 
   const filteredClubs = useMemo(() => {
     return clubs.filter(club => {
-      const matchesTags = selectedTags.length === 0 ||
-        selectedTags.some(tag => club.tags?.includes(tag));
-      return matchesTags;
+      if (!selectedCategory) return true;
+      return club.category === selectedCategory;
     });
-  }, [clubs, selectedTags]);
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    );
-  };
+  }, [clubs, selectedCategory]);
 
   const clearFilters = () => {
     setSearchQuery('');
-    setSelectedTags([]);
+    setSelectedCategory('');
   };
 
   return (
@@ -73,7 +72,7 @@ export function ClubsPage() {
               className="pl-10"
             />
           </div>
-          {(searchQuery || selectedTags.length > 0) && (
+          {(searchQuery || selectedCategory) && (
             <Button variant="ghost" onClick={clearFilters} size="sm">
               <X className="w-4 h-4" />
             </Button>
@@ -81,16 +80,16 @@ export function ClubsPage() {
         </div>
 
         <div>
-          <h3 className="font-medium mb-3 text-sm md:text-base">태그로 필터링</h3>
+          <h3 className="font-medium mb-3 text-sm md:text-base">카테고리</h3>
           <div className="flex flex-wrap gap-2">
-            {ALL_TAGS.map(tag => (
+            {CATEGORIES.map(cat => (
               <Badge
-                key={tag}
-                variant={selectedTags.includes(tag) ? 'default' : 'outline'}
+                key={cat.value}
+                variant={selectedCategory === cat.value ? 'default' : 'outline'}
                 className="cursor-pointer text-sm"
-                onClick={() => toggleTag(tag)}
+                onClick={() => setSelectedCategory(prev => prev === cat.value ? '' : cat.value)}
               >
-                {tag}
+                {cat.label}
               </Badge>
             ))}
           </div>
