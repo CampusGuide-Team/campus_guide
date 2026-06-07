@@ -39,7 +39,7 @@ public class ChatbotService {
             );
         }
 
-        // 0순위: 식단 질문 처리
+        // 0순위: 식단 질문 처리 (장소 검색 로직에 걸리기 전에 최우선 분기)
         if (isMealQuestion(message)) {
             return answerMealQuestion(message);
         }
@@ -255,6 +255,7 @@ public class ChatbotService {
                 || message.contains("점심");
     }
 
+    // [복구 완료] 식단 답변 처리 메서드 (돈까스 필수 조건문 추가)
     private ChatResponse answerMealQuestion(String message) {
 
         LocalDate targetDate = parseDateFromMessage(message);
@@ -265,7 +266,8 @@ public class ChatbotService {
             Meal m = meal.get();
             String topFood = m.getTopFood();
 
-            if (topFood == null || topFood.isBlank()) {
+            // 데이터 정무 판단: 무조건 메뉴에 "까스"가 들어가야 정상 크롤링으로 취급
+            if (topFood == null || topFood.isBlank() || !topFood.contains("까스")) {
                 return new ChatResponse(
                         targetDate + " 식단 정보가 없습니다.",
                         null, null, null, null, null, null, null
@@ -279,7 +281,7 @@ public class ChatbotService {
             return new ChatResponse(
                     sb.toString(),
                     null, null, null, null, null, null, null
-            );
+                );
         }
 
         return new ChatResponse(
@@ -474,34 +476,39 @@ public class ChatbotService {
                 .trim();
     }
 
-    // 날짜 파싱
+    // [정규식 날짜 파싱 적용] 6월 4일, 6/8 등의 텍스트를 최우선으로 정확하게 뜯어냄
     private LocalDate parseDateFromMessage(String message) {
 
         LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
 
-        if (message.contains("오늘")) return today;
-        if (message.contains("내일")) return today.plusDays(1);
-        if (message.contains("모레")) return today.plusDays(2);
-        if (message.contains("어제")) return today.minusDays(1);
-        if (message.contains("그제") || message.contains("그저께")) return today.minusDays(2);
-
+        // 1. "X월 Y일" 또는 "X/Y" 형태 정규식 파싱
         Pattern monthDayPattern = Pattern.compile("(\\d{1,2})\\s*(월|/)\\s*(\\d{1,2})");
         Matcher monthDayMatcher = monthDayPattern.matcher(message);
 
         if (monthDayMatcher.find()) {
             int month = Integer.parseInt(monthDayMatcher.group(1));
             int day = Integer.parseInt(monthDayMatcher.group(3));
-            return LocalDate.of(today.getYear(), month, day);
+            return LocalDate.of(currentYear, month, day);
         }
 
+        // 2. "X일" 형태로 일만 말했을 때
         Pattern dayOnlyPattern = Pattern.compile("(\\d{1,2})\\s*일");
         Matcher dayOnlyMatcher = dayOnlyPattern.matcher(message);
 
         if (dayOnlyMatcher.find()) {
             int day = Integer.parseInt(dayOnlyMatcher.group(1));
-            return LocalDate.of(today.getYear(), today.getMonthValue(), day);
+            return LocalDate.of(currentYear, today.getMonthValue(), day);
         }
 
+        // 3. 상대 날짜 키워드 처리
+        if (message.contains("오늘")) return today;
+        if (message.contains("내일")) return today.plusDays(1);
+        if (message.contains("모레")) return today.plusDays(2);
+        if (message.contains("어제")) return today.minusDays(1);
+        if (message.contains("그제") || message.contains("그저께")) return today.minusDays(2);
+
+        // 4. 요일 키워드 처리
         if (message.contains("월요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
         if (message.contains("화요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY));
         if (message.contains("수요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY));
@@ -649,7 +656,6 @@ public class ChatbotService {
         }
     }
 
-    // 최종 위치 응답
     private String makeLocationAnswer(BuildingPlace place) {
 
         String placeName = place.getPlace();
