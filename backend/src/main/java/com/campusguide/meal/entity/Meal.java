@@ -19,6 +19,7 @@ public class Meal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(unique = true)
     private LocalDate mealDate;
 
     @Column(columnDefinition = "TEXT")
