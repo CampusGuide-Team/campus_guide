@@ -67,9 +67,11 @@ public class MealCrawler implements CommandLineRunner {
                 String topFood = (String) m.get("topFood");
 
 
-                if (dateStr == null) continue;
-
                 LocalDate date = LocalDate.parse(dateStr);
+
+                if (!mealRepository.findAllByMealDate(date).isEmpty()) {
+                    continue;
+                }
 
                 Meal meal = Meal.builder()
                         .mealDate(date)
