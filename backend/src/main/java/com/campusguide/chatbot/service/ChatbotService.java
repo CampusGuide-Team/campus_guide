@@ -11,9 +11,12 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import java.time.temporal.TemporalAdjusters;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.*;
 
 @Service
@@ -412,16 +415,38 @@ public class ChatbotService {
     // 날짜 파싱
     private LocalDate parseDateFromMessage(String message) {
         LocalDate today = LocalDate.now();
+    
+        // 1. 상대 날짜 키워드 처리
         if (message.contains("오늘")) return today;
         if (message.contains("내일")) return today.plusDays(1);
         if (message.contains("모레")) return today.plusDays(2);
         if (message.contains("어제")) return today.minusDays(1);
         if (message.contains("그제") || message.contains("그저께")) return today.minusDays(2);
-        if (message.contains("월요일")) return today.with(DayOfWeek.MONDAY);
-        if (message.contains("화요일")) return today.with(DayOfWeek.TUESDAY);
-        if (message.contains("수요일")) return today.with(DayOfWeek.WEDNESDAY);
-        if (message.contains("목요일")) return today.with(DayOfWeek.THURSDAY);
-        if (message.contains("금요일")) return today.with(DayOfWeek.FRIDAY);
+    
+        // 2. [추가] "X월 Y일" 또는 "X/Y" 패턴 매칭 (예: 6월 10일, 6/10)
+        Pattern monthDayPattern = Pattern.compile("(\\d{1,2})\\s*(월|/)\\s*(\\d{1,2})");
+        Matcher monthDayMatcher = monthDayPattern.matcher(message);
+        if (monthDayMatcher.find()) {
+            int month = Integer.parseInt(monthDayMatcher.group(1));
+            int day = Integer.parseInt(monthDayMatcher.group(3));
+            return LocalDate.of(today.getYear(), month, day);
+        }
+    
+        // 3. [추가] "X일" 패턴 매칭 (월 없이 일만 말했을 때, 예: 10일 식단 뭐야)
+        Pattern dayOnlyPattern = Pattern.compile("(\\d{1,2})\\s*일");
+        Matcher dayOnlyMatcher = dayOnlyPattern.matcher(message);
+        if (dayOnlyMatcher.find()) {
+            int day = Integer.parseInt(dayOnlyMatcher.group(1));
+            return LocalDate.of(today.getYear(), today.getMonthValue(), day);
+        }
+    
+        // 4. [개선] 요일 처리 (TemporalAdjusters.nextOrSame 사용)
+        if (message.contains("월요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+        if (message.contains("화요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.TUESDAY));
+        if (message.contains("수요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY));
+        if (message.contains("목요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.THURSDAY));
+        if (message.contains("금요일")) return today.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
+    
         return today;
     }
 
