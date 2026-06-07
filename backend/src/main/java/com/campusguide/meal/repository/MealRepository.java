@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface MealRepository extends JpaRepository<Meal, Long> {
     Optional<Meal> findByMealDate(LocalDate date);
     List<Meal> findAllByMealDateBetween(LocalDate start, LocalDate end);
+    List<Meal> findAllByMealDate(LocalDate date);
 }
