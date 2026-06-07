@@ -268,7 +268,7 @@ export function FacilitiesPage() {
                     <Button
                         className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white"
                         onClick={() => window.open(
-                            `https://map.kakao.com/link/map/${encodeURIComponent(selectedBuilding.name)},${selectedBuilding.latitude},${selectedBuilding.longitude}`,
+                            `https://map.kakao.com/link/to/${encodeURIComponent(selectedBuilding.name)},${selectedBuilding.latitude},${selectedBuilding.longitude}`,
                             '_blank'
                         )}
                     >
@@ -319,7 +319,7 @@ export function FacilitiesPage() {
                     <Button
                         className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white"
                         onClick={() => window.open(
-                            `https://map.kakao.com/link/map/${encodeURIComponent(selectedPlace.buildingName)},${selectedPlace.latitude},${selectedPlace.longitude}`,
+                            `https://map.kakao.com/link/to/${encodeURIComponent(selectedPlace.buildingName)},${selectedPlace.latitude},${selectedPlace.longitude}`,
                             '_blank'
                         )}
                     >
